@@ -6,65 +6,50 @@ Accent = (e, o)->
 Accent:: = 
 	Constructor: Accent
 
-	template: "	<div id='accentjs'>
-					<div class='accentjs-row' id='accentjs-top'></div>
-					<div class='accentjs-row' id='accentjs-middle'>
-						<span id='accentjs-left'></span>
-						<span id='accentjs-content'>
-							<div class='accentjs-border'></div>
-						</span>
-						<span id='accentjs-right'></span>
-					</div>
-					<div class='accentjs-row' id='accentjs-bottom'></div>
-				</div>"
-
+	template: "
+				<div id='guidejs-top' class='guidejs-row guidejs-shade'></div>
+				<div id='guidejs-left' class='guidejs-shade'></div>
+				<div id='guidejs-content'>
+					<div class='guidejs-border'></div>
+				</div>
+				<div id='guidejs-right' class='guidejs-shade'></div>
+				<div id='guidejs-bottom' class='guidejs-row guidejs-shade'></div>
+				"
 	css: "<style>
-			#accentjs {
-				position: absolute;
-				top:0px;
-
-				z-index:999999;
-				/*pointer-events:none; */
+			#guidejs-top,
+			#guidejs-left,
+			#guidejs-content,
+			#guidejs-right,
+			#guidejs-bottom {
+				position: fixed;
+				top: 0px;
+				display: block;
 			}
-			#accentjs.window {
-				position:fixed;
+			.guidejs-row {
 				width:100%;
-				height:100%;
 			}
-			#accentjs .accentjs-row {
-				display:block;
-				/*height:30px;
-				width:120px;*/
-			}
-			#accentjs.round {
-				border-radius: 10px;
-			}
-			#accentjs #accentjs-top,
-			#accentjs #accentjs-bottom,
-			#accentjs #accentjs-left,
-			#accentjs #accentjs-right
+			.guidejs-shade
 			{
 				background: rgba(0, 0, 0, .7);
 				/* ;
 				filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#4cffffff', endColorstr='#4cffffff'); */ /* IE */
 
 			}
-
-			#accentjs #accentjs-middle {
+			#guidejs #guidejs-middle {
 				font-size:0px;
 			}
-			#accentjs #accentjs-left,
-			#accentjs #accentjs-right,
-			#accentjs #accentjs-content {
+			/*#guidejs-left,
+			#guidejs-right,
+			#guidejs-content {
 				display: inline-block;
-				height: 100%; /* as defined in middle/row */
+				height: 100%;
 				min-width: 10px;
-			}
+			}*/
 			/* inside border trick */
-			#accentjs #accentjs-content {
+			#guidejs-content {
 				overflow:hidden;
 			}
-			#accentjs .accentjs-border {
+			#guidejs-content .guidejs-border {
 				display: block;
 				height: 100%;
 				width: 100%;
@@ -82,8 +67,8 @@ Accent:: =
 		$('body').append @template
 
 		@conf = $.extend {},
-				size     : window
-				position : 1
+				#size     : window
+				#position : 1
 				padding  : 0
 				corner   : 5 #todo
 				prevent_click: true #todo pointer-events:none
@@ -94,16 +79,16 @@ Accent:: =
 		console.log @conf, options
 
 		@$target = $ element  # target element
-		@$el = $('#accentjs') # self
+		@$el = $('#guidejs-top, #guidejs-left, #guidejs-content, #guidejs-right, #guidejs-bottom')
 
 		# The elements that needs resizing:
-		@top 	= $('#accentjs-top', @$el)
-		@bottom = $('#accentjs-bottom', @$el)
-		@middle = $('#accentjs-middle', @$el)
-		@right 	= $('#accentjs-right', @$el)
-		@highlight = $('#accentjs-content', @$el)
-		@left 	= $('#accentjs-left', @$el)
-		@rows 	= $('.accentjs-row', @$el)
+		@top 	= $('#guidejs-top')
+		@bottom = $('#guidejs-bottom')
+		#@middle = $('#guidejs-middle')
+		@right 	= $('#guidejs-right')
+		@content = $('#guidejs-content')
+		@left 	= $('#guidejs-left')
+		#@rows 	= $('.guidejs-row')
 
 		#console.log @top, @bottom, @$el
 		# Events
@@ -113,8 +98,9 @@ Accent:: =
 
 
 		# Go!
-		setTimeout => @render.apply @
-		, 0
+		setTimeout(()=> 
+			@render.apply(@)
+		, 0)
 		
 		# hide and if on init then show
 		#@show()
@@ -135,31 +121,39 @@ Accent:: =
 
 		console.log 'rendering', target, camera
 
-		return console.log("tba") if @conf.size is not window
+		#return console.log("tba") if @conf.size is not window
 
-		# window, rows = 100%
-		@$el.addClass 'window'
-		@rows.css width: '100%'
-
+		
 		# y
 		dy  	= target.top - camera.top
-		top 	= Math.max 0, dy
+		top 	= 
+			top    : 0
+			height : Math.max 0, dy
 		mid 	= Math.max 0, (Math.min target.height, (target.height + dy))
-		bottom 	= camera.height - (top + mid)
+		bottom 	= 
+			top    : mid + top.height
+			height : camera.height - (mid)
 
-		@top.css 		height: top
-		@middle.css 	height: mid
-		@bottom.css 	height: bottom
+		@top.css 		top
+		@bottom.css 	bottom
 		
 		# x
-		dx    		= target.left - camera.left
-		left  		= Math.max 0, dx
-		highlight 	= Math.max 0, (Math.min target.width, (target.width + dx))
-		right 		= camera.width - (left + highlight)
+		dx    	= target.left - camera.left
+		left  	= 
+			top    : top.height
+			left   : 0
+			height : mid
+			width  : target.left
+		content = Math.max 0, (Math.min target.width, (target.width + dx))
+		right 	= 
+			top    : top.height
+			left   : left.width + content
+			height : mid
+			width  : camera.width - (left.width + content)
 
-		@left.css 		width: left
-		@highlight.css 	width: highlight
-		@right.css 		width: right
+		@left.css 		left
+		#@content.css 	content
+		@right.css 		right
 	
 	show: ->
 		# ...
@@ -184,5 +178,5 @@ $.fn.accent = (param)->
 
 log = console.log
 
-$(".btn-success").accent {padding: 10, corner: 10, prevent_click: false, prevent_highlight_click: false}
+$("#logo").accent {padding: 0, corner: 10, prevent_click: false, prevent_highlight_click: false}
 #$("#logo").accent('show')
