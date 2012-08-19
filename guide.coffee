@@ -33,18 +33,10 @@ Accent:: =
 				background: rgba(0, 0, 0, .7);
 				/* ;
 				filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#4cffffff', endColorstr='#4cffffff'); */ /* IE */
-
 			}
 			#guidejs #guidejs-middle {
 				font-size:0px;
 			}
-			/*#guidejs-left,
-			#guidejs-right,
-			#guidejs-content {
-				display: inline-block;
-				height: 100%;
-				min-width: 10px;
-			}*/
 			/* inside border trick */
 			#guidejs-content {
 				overflow:hidden;
@@ -67,8 +59,6 @@ Accent:: =
 		$('body').append @template
 
 		@conf = $.extend {},
-				#size     : window
-				#position : 1
 				padding  : 0
 				corner   : 5 #todo
 				prevent_click: true #todo pointer-events:none
@@ -84,11 +74,9 @@ Accent:: =
 		# The elements that needs resizing:
 		@top 	= $('#guidejs-top')
 		@bottom = $('#guidejs-bottom')
-		#@middle = $('#guidejs-middle')
 		@right 	= $('#guidejs-right')
 		@content = $('#guidejs-content')
 		@left 	= $('#guidejs-left')
-		#@rows 	= $('.guidejs-row')
 
 		#console.log @top, @bottom, @$el
 		# Events
@@ -157,7 +145,7 @@ Accent:: =
 	
 	show: ->
 		# ...
-		console.log "sjhow"
+		console.log "show"
 
 	hide: ->
 		#...
@@ -180,3 +168,24 @@ log = console.log
 
 $("#logo").accent {padding: 0, corner: 10, prevent_click: false, prevent_highlight_click: false}
 #$("#logo").accent('show')
+
+###
+TODO 
+- 	Put this list as issues on github when it's up
+- 	This was written as a per-element script at first. It is now
+	a global controller of a highlighted 'guide'. Change the init 
+	and general control flow of the script
+- 	Animations: add fade in, fade out on show/hide
+-   Add a steps queue - list of jq objs or selectors of targets 
+	as well as HTML content for guidance
+-   Add HTML content ontop of guide. Allow flexibility of positioning
+-   Some calculations are wrong. The outcome looks ok but I think some
+	elements go out of the window and they shouldn't. Extra check 
+	horizontal cases
+-   Allow the cool-ass corner border only for browsers with 
+	pointer-events:none support. That way the element can be ontop of
+	things without fucking up mouse events of the focused content
+-   change_target functin, receives an element and animates to it
+-   gogogo
+
+###

@@ -11,7 +11,7 @@
   Accent.prototype = {
     Constructor: Accent,
     template: "				<div id='guidejs-top' class='guidejs-row guidejs-shade'></div>				<div id='guidejs-left' class='guidejs-shade'></div>				<div id='guidejs-content'>					<div class='guidejs-border'></div>				</div>				<div id='guidejs-right' class='guidejs-shade'></div>				<div id='guidejs-bottom' class='guidejs-row guidejs-shade'></div>				",
-    css: "<style>			#guidejs-top,			#guidejs-left,			#guidejs-content,			#guidejs-right,			#guidejs-bottom {				position: fixed;				top: 0px;				display: block;			}			.guidejs-row {				width:100%;			}			.guidejs-shade			{				background: rgba(0, 0, 0, .7);				/* ;				filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#4cffffff', endColorstr='#4cffffff'); */ /* IE */			}			#guidejs #guidejs-middle {				font-size:0px;			}			/*#guidejs-left,			#guidejs-right,			#guidejs-content {				display: inline-block;				height: 100%;				min-width: 10px;			}*/			/* inside border trick */			#guidejs-content {				overflow:hidden;			}			#guidejs-content .guidejs-border {				display: block;				height: 100%;				width: 100%;				box-shadow: 0px 0px 0px 15px rgba(0, 0, 0, .7);				border-radius: 5px;			}		</style>",
+    css: "<style>			#guidejs-top,			#guidejs-left,			#guidejs-content,			#guidejs-right,			#guidejs-bottom {				position: fixed;				top: 0px;				display: block;			}			.guidejs-row {				width:100%;			}			.guidejs-shade			{				background: rgba(0, 0, 0, .7);				/* ;				filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#4cffffff', endColorstr='#4cffffff'); */ /* IE */			}			#guidejs #guidejs-middle {				font-size:0px;			}			/* inside border trick */			#guidejs-content {				overflow:hidden;			}			#guidejs-content .guidejs-border {				display: block;				height: 100%;				width: 100%;				box-shadow: 0px 0px 0px 15px rgba(0, 0, 0, .7);				border-radius: 5px;			}		</style>",
     init: function(element, options) {
       var _this = this;
       console.log("init", this, element);
@@ -86,7 +86,7 @@
       return this.right.css(right);
     },
     show: function() {
-      return console.log("sjhow");
+      return console.log("show");
     },
     hide: function() {
       return console.log("hide");
@@ -114,5 +114,26 @@
     prevent_click: false,
     prevent_highlight_click: false
   });
+
+  /*
+  TODO 
+  - 	Put this list as issues on github when it's up
+  - 	This was written as a per-element script at first. It is now
+  	a global controller of a highlighted 'guide'. Change the init 
+  	and general control flow of the script
+  - 	Animations: add fade in, fade out on show/hide
+  -   Add a steps queue - list of jq objs or selectors of targets 
+  	as well as HTML content for guidance
+  -   Add HTML content ontop of guide. Allow flexibility of positioning
+  -   Some calculations are wrong. The outcome looks ok but I think some
+  	elements go out of the window and they shouldn't. Extra check 
+  	horizontal cases
+  -   Allow the cool-ass corner border only for browsers with 
+  	pointer-events:none support. That way the element can be ontop of
+  	things without fucking up mouse events of the focused content
+  -   change_target functin, receives an element and animates to it
+  -   gogogo
+  */
+
 
 }).call(this);
