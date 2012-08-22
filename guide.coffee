@@ -17,7 +17,7 @@ License shit goes here
 		constructor: (options = {}) ->
 			# Append necessary html/css
 			$('head').append @css
-			$('body').append @template
+			$('body').append @$els
 
 			# In case we were initiated differently
 			window.guidejs = @ if not window.guidejs
@@ -25,14 +25,17 @@ License shit goes here
 			# Extend defaults
 			@conf = $.extend {}, @defaults, options
 
-			# All elements
-			@$els    = $ '#guidejs-top, #guidejs-left, #guidejs-content, #guidejs-right, #guidejs-bottom'
-			# Specific elements
+			# Easy access to elements
+			@$shades = $ '#guidejs-top, #guidejs-left, #guidejs-right, #guidejs-bottom'
+			# ...
+			@content = $ '#guidejs-content'
 			@top 	 = $ '#guidejs-top'
 			@bottom  = $ '#guidejs-bottom'
 			@right 	 = $ '#guidejs-right'
-			@content = $ '#guidejs-content'
 			@left 	 = $ '#guidejs-left'
+
+			#@$shades.css
+			#	'background-color': @conf.shade_color # @conf.shade_opacity	
 
 			@nothing_to_play = @hide
 			# Bind events
@@ -40,6 +43,12 @@ License shit goes here
 			#@play()
 			
 			# ... 
+
+		remove: ->
+			#...
+			# stop
+			# remove els
+			# remove guidejs
 
 		set_target: (el, animate = 0) ->
 			@target.el = (el = $ el)
@@ -53,6 +62,8 @@ License shit goes here
 					duration: @transition
 					step: () =>
 						@render.apply @
+			
+			# TODO: if prevent scroll, and target outside, then scroll to
 
 		# Update 
 		render: ->
@@ -117,7 +128,8 @@ License shit goes here
 			setTimeout ()=> 
 				@set_target @el_conf.el
 			, 0
-			
+			# Page scroll
+			$('body').css('overflow', if @el_conf.prevent_scroll then 'hidden' else 'auto')
 			# The autoplay timer if the object's got some
 			if @el_conf.timer			
 				@timer = setTimeout =>
@@ -133,7 +145,7 @@ License shit goes here
 			return if not element
 			# Push element object to the queue
 			options = @default_el_options if not options
-			@queue.push $.extend {}, options, {el: $ element}
+			@queue.push($.extend {}, @el_defaults, options, {el: $ element})
 			# Start playing unless we have an option saying otherwise
 			do @play if not @playing
 		
@@ -148,8 +160,7 @@ License shit goes here
 			# Fadeout
 			@$els.clearQueue()
 				.fadeTo(@conf.fade_time, 0)
-				.hide(0)
-			
+				#.hide(0) # jq error ??
 			# Stop any ongoing shits
 			do @stop
 
@@ -188,22 +199,26 @@ License shit goes here
 		# Global defaults
 		conf: {}
 		defaults: 
-			fade_time	: 0  	# In ms, time to fade in/out
+			fade_time		: 250  	# In ms, time to fade in/out
+			shade_opacity   : 0.7   # Opacity of the background
+			shade_color     : '#0'  # Color of the background
 		# Per-element on queue defaults
 		el_conf: {}
 		el_defaults:
-			padding		: 5 	# In px, extra spacing from the element
-			corner		: 5 	# In px, round corners 
-			#auto_play	: no 	# Should it autoplay?
-			timer		: 2000  # In ms, speed of the autoplay
-			transition  : 500   # In ms, speed of transition. 0 for disabled
-			#scroll      : yes	# Prevent scroll
-			# ...
-		template: "	<div id='guidejs-top' class='guidejs-row guidejs-shade'></div>
+			padding			: 5 	# In px, extra spacing from the element
+			corner			: 5 	# In px, round corners 
+			#auto_play		: no 	# Should it autoplay?
+			timer			: 2000  # In ms, speed of the autoplay
+			transition  	: 500   # In ms, speed of transition. 0 for disabled
+			prevent_scroll	: no	# Prevent scroll
+			html 			: no    # HTML to put next to the focused element
+		
+		$els: $ "	<div id='guidejs-top' class='guidejs-row guidejs-shade'></div>
 					<div id='guidejs-left' class='guidejs-shade'></div>
 					<div id='guidejs-content'><div class='guidejs-border'></div></div>
 					<div id='guidejs-right' class='guidejs-shade'></div>
-					<div id='guidejs-bottom' class='guidejs-row guidejs-shade'></div>"
+					<div id='guidejs-bottom' class='guidejs-row guidejs-shade'></div>
+					<div id='guidejs-html'></div>"
 		css: "<style>
 				#guidejs-top,
 				#guidejs-left,
@@ -221,6 +236,9 @@ License shit goes here
 				.guidejs-shade
 				{
 					background: rgba(0, 0, 0, .7); /* todo: support non-rgba */
+				}
+				#guidejs-html {
+					z-index: 1000000;
 				}
 				/* inside border trick. this is removed for ie/opera */
 				#guidejs-content {
@@ -257,7 +275,7 @@ License shit goes here
 
 $("h2").guidejs {padding: 0, timer: 2000}
 $("#logo").guidejs {padding: 20, timer:2000}
-#$("h3").guidejs {padding: 5, timer: 2000}
+#$("h3").guidejs {padding: 5, html:'blah <a href="#" class="guidejs-next">nigga</a>'}
 
 ###
 USAGE
