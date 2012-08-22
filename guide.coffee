@@ -9,9 +9,12 @@ License shit goes here
 ### 
 
 (($) ->
-	# Orchestring the show
+	
+	# Sup
 	class guidejs 
-		constructor: (options) ->
+
+		# Private fns
+		constructor: (options = {}) ->
 			# Append necessary html/css
 			$('head').append @css
 			$('body').append @template
@@ -20,11 +23,7 @@ License shit goes here
 			window.guidejs = @ if not window.guidejs
 
 			# Extend defaults
-			@conf = $.extend {},
-					padding  : 0
-					corner   : 5 #todo
-					#...
-				, options
+			@conf = $.extend {}, @defaults, options
 
 			# All elements
 			@$els    = $ '#guidejs-top, #guidejs-left, #guidejs-content, #guidejs-right, #guidejs-bottom'
@@ -35,11 +34,12 @@ License shit goes here
 			@content = $ '#guidejs-content'
 			@left 	 = $ '#guidejs-left'
 
+			@nothing_to_play = @hide
 			# Bind events
-			$(window).on 'resize scroll', => @render.apply @
+			#$(window).on 'resize scroll', => @render.apply @
+			#@play()
 			
 			# ... 
-
 
 		set_target: (el, animate = 0) ->
 			@target.el = (el = $ el)
@@ -58,10 +58,10 @@ License shit goes here
 		render: ->
 			# The target and its necessary padding
 			target = 
-				top    	: @target.top - @conf.padding
-				left   	: @target.left - @conf.padding
-				width  	: @target.w + @conf.padding * 2
-				height 	: @target.h + @conf.padding * 2
+				top    	: @target.top - @el_conf.padding
+				left   	: @target.left - @el_conf.padding
+				width  	: @target.w + @el_conf.padding * 2
+				height 	: @target.h + @el_conf.padding * 2
 			# The 'camera', our window position
 			camera = 
 				top 	: $(window).scrollTop() 
@@ -106,46 +106,98 @@ License shit goes here
 			@content.css 	content
 			@right.css 		right
 		
-		add_to_queue: (el, play = yes) ->
-			# ...
-			return if not el
-			@queue.push el
-			do @play_next if play
 
 		play_next: () ->
+			return console.log("play_next when not playing") if not @playing
+			# Get the next one to play
+			@el_conf = @queue.shift()
+			# Gto if we don't have anything. Execute the nothing fn if it exists
+			return ((@nothing_to_play() if typeof @nothing_to_play is 'function') and @stop) if not @el_conf
+			# Execute the next target
 			setTimeout ()=> 
-				@set_target(@queue.shift())
+				@set_target @el_conf.el
 			, 0
-
-			# If timer, set timeout...
-
+			
+			# The autoplay timer if the object's got some
+			if @el_conf.timer			
+				@timer = setTimeout =>
+					do @play_next
+				, @el_conf.timer
+			
 			return @
+
+		# Public fns
+
+		# Add an element to the queue
+		add_to_queue: (element, options) ->
+			return if not element
+			# Push element object to the queue
+			options = @default_el_options if not options
+			@queue.push $.extend {}, options, {el: $ element}
+			# Start playing unless we have an option saying otherwise
+			do @play if not @playing
 		
 		show: ->
-			@els.clearQueue()
+			@$els.clearQueue()
 				.show(0)
-				.fadeTo(1)
+				.fadeTo(@conf.fade_time, 1)
+
+			# play?
 
 		hide: ->
-			@els.clearQueue()
-				.fadeTo(0)
+			# Fadeout
+			@$els.clearQueue()
+				.fadeTo(@conf.fade_time, 0)
 				.hide(0)
+			
+			# Stop any ongoing shits
+			do @stop
+
+		play: ->
+			# If not already playing, and if there's anything to play
+			return if @playing or not @queue.length
+			# Set events
+			$(window).on 'resize scroll', => @render.apply @
+			# Declare that we are indeed playing, and play the next in the queue!
+			@playing = yes
+			do @play_next
+			
+			return @
+
+		stop: ->
+			# If we are playing
+			return if not @playing
+			# Remove events
+			$(window).off 'resize scroll' # TODO this might collide with existing page events!!
+			# Declare that we aren't playing no more 
+			@playing = no
+			
+			return @
 
 		# Vars 
 		playing: no
 		queue: []
+		timer: no # current timer reference
 		target: 
 			top: 0 
 			left: 0
 			h: $(window).height()
 			w: $(window).width()
 			el: window
-		defaults:
+		nothing_to_play: false #fn
+		# Global defaults
+		conf: {}
+		defaults: 
+			fade_time	: 0  	# In ms, time to fade in/out
+		# Per-element on queue defaults
+		el_conf: {}
+		el_defaults:
 			padding		: 5 	# In px, extra spacing from the element
 			corner		: 5 	# In px, round corners 
-			auto_play	: no 	# Should it autoplay?
+			#auto_play	: no 	# Should it autoplay?
 			timer		: 2000  # In ms, speed of the autoplay
 			transition  : 500   # In ms, speed of transition. 0 for disabled
+			#scroll      : yes	# Prevent scroll
 			# ...
 		template: "	<div id='guidejs-top' class='guidejs-row guidejs-shade'></div>
 					<div id='guidejs-left' class='guidejs-shade'></div>
@@ -161,6 +213,7 @@ License shit goes here
 					position: fixed;
 					top: 0px;
 					display: block;
+					z-index: 999999;
 				}
 				.guidejs-row {
 					width:100%;
@@ -168,9 +221,6 @@ License shit goes here
 				.guidejs-shade
 				{
 					background: rgba(0, 0, 0, .7); /* todo: support non-rgba */
-				}
-				#guidejs #guidejs-middle {
-					font-size:0px;
 				}
 				/* inside border trick. this is removed for ie/opera */
 				#guidejs-content {
@@ -190,11 +240,12 @@ License shit goes here
 	$.fn.guidejs = (options)->
 		# Add element to the queue
 		return @each ->
+			console.log @
 			if not window.guidejs
 				# Initiate a new class if we don't have one
-				window.guidejs = new guidejs(@, options).add_to_queue @
+				window.guidejs = new guidejs(@, {}).add_to_queue @, options
 			else 
-				window.guidejs.add_to_queue @
+				window.guidejs.add_to_queue @, options
 
 
 			#if not $(@).data('accent') # init, param = options
@@ -202,11 +253,11 @@ License shit goes here
 			#else if typeof param is 'string' # function, param = function string
 			#	$(@).data('accent')[param]()
 			#@.data
-
 )(jQuery)
 
-$("#logo").guidejs {padding: 0, timer: 2000}
-
+$("h2").guidejs {padding: 0, timer: 2000}
+$("#logo").guidejs {padding: 20, timer:2000}
+#$("h3").guidejs {padding: 5, timer: 2000}
 
 ###
 USAGE
@@ -222,6 +273,11 @@ settings if you didn;t
 adding a few elements will add them to the queue
 
 ...
+
+callback on end of the loop
+	window.guidejs.nothing_to_play = function(){ ... }
+
+
 
 
 ###

@@ -17,25 +17,22 @@ License shit goes here
     guidejs = (function() {
 
       function guidejs(options) {
-        var _this = this;
+        if (options == null) {
+          options = {};
+        }
         $('head').append(this.css);
         $('body').append(this.template);
         if (!window.guidejs) {
           window.guidejs = this;
         }
-        this.conf = $.extend({}, {
-          padding: 0,
-          corner: 5
-        }, options);
+        this.conf = $.extend({}, this.defaults, options);
         this.$els = $('#guidejs-top, #guidejs-left, #guidejs-content, #guidejs-right, #guidejs-bottom');
         this.top = $('#guidejs-top');
         this.bottom = $('#guidejs-bottom');
         this.right = $('#guidejs-right');
         this.content = $('#guidejs-content');
         this.left = $('#guidejs-left');
-        $(window).on('resize scroll', function() {
-          return _this.render.apply(_this);
-        });
+        this.nothing_to_play = this.hide;
       }
 
       guidejs.prototype.set_target = function(el, animate) {
@@ -61,10 +58,10 @@ License shit goes here
       guidejs.prototype.render = function() {
         var bottom, camera, content, dx, dy, left, mid, right, target, top;
         target = {
-          top: this.target.top - this.conf.padding,
-          left: this.target.left - this.conf.padding,
-          width: this.target.w + this.conf.padding * 2,
-          height: this.target.h + this.conf.padding * 2
+          top: this.target.top - this.el_conf.padding,
+          left: this.target.left - this.el_conf.padding,
+          width: this.target.w + this.el_conf.padding * 2,
+          height: this.target.h + this.el_conf.padding * 2
         };
         camera = {
           top: $(window).scrollTop(),
@@ -108,38 +105,77 @@ License shit goes here
         return this.right.css(right);
       };
 
-      guidejs.prototype.add_to_queue = function(el, play) {
-        if (play == null) {
-          play = true;
-        }
-        if (!el) {
-          return;
-        }
-        this.queue.push(el);
-        if (play) {
-          return this.play_next();
-        }
-      };
-
       guidejs.prototype.play_next = function() {
         var _this = this;
+        if (!this.playing) {
+          return console.log("play_next when not playing");
+        }
+        this.el_conf = this.queue.shift();
+        if (!this.el_conf) {
+          return (typeof this.nothing_to_play === 'function' ? this.nothing_to_play() : void 0) && this.stop;
+        }
         setTimeout(function() {
-          return _this.set_target(_this.queue.shift());
+          return _this.set_target(_this.el_conf.el);
         }, 0);
+        if (this.el_conf.timer) {
+          this.timer = setTimeout(function() {
+            return _this.play_next();
+          }, this.el_conf.timer);
+        }
         return this;
       };
 
+      guidejs.prototype.add_to_queue = function(element, options) {
+        if (!element) {
+          return;
+        }
+        if (!options) {
+          options = this.default_el_options;
+        }
+        this.queue.push($.extend({}, options, {
+          el: $(element)
+        }));
+        if (!this.playing) {
+          return this.play();
+        }
+      };
+
       guidejs.prototype.show = function() {
-        return this.els.clearQueue().show(0).fadeTo(1);
+        return this.$els.clearQueue().show(0).fadeTo(this.conf.fade_time, 1);
       };
 
       guidejs.prototype.hide = function() {
-        return this.els.clearQueue().fadeTo(0).hide(0);
+        this.$els.clearQueue().fadeTo(this.conf.fade_time, 0).hide(0);
+        return this.stop();
+      };
+
+      guidejs.prototype.play = function() {
+        var _this = this;
+        if (this.playing || !this.queue.length) {
+          return;
+        }
+        $(window).on('resize scroll', function() {
+          return _this.render.apply(_this);
+        });
+        this.playing = true;
+        this.play_next();
+        return this;
+      };
+
+      guidejs.prototype.stop = function() {
+        if (!this.playing) {
+          return;
+        }
+        $(window).off('resize scroll');
+        this.playing = false;
+        return this;
       };
 
       guidejs.prototype.playing = false;
 
       guidejs.prototype.queue = [];
+
+      guidejs.prototype.timer = false;
 
       guidejs.prototype.target = {
         top: 0,
@@ -149,34 +185,49 @@ License shit goes here
         el: window
       };
 
+      guidejs.prototype.nothing_to_play = false;
+
+      guidejs.prototype.conf = {};
+
       guidejs.prototype.defaults = {
+        fade_time: 0
+      };
+
+      guidejs.prototype.el_conf = {};
+
+      guidejs.prototype.el_defaults = {
         padding: 5,
         corner: 5,
-        auto_play: false,
         timer: 2000,
         transition: 500
       };
 
       guidejs.prototype.template = "	<div id='guidejs-top' class='guidejs-row guidejs-shade'></div>					<div id='guidejs-left' class='guidejs-shade'></div>					<div id='guidejs-content'><div class='guidejs-border'></div></div>					<div id='guidejs-right' class='guidejs-shade'></div>					<div id='guidejs-bottom' class='guidejs-row guidejs-shade'></div>";
 
-      guidejs.prototype.css = "<style>				#guidejs-top,				#guidejs-left,				#guidejs-content,				#guidejs-right,				#guidejs-bottom {					position: fixed;					top: 0px;					display: block;				}				.guidejs-row {					width:100%;				}				.guidejs-shade				{					background: rgba(0, 0, 0, .7); /* todo: support non-rgba */				}				#guidejs #guidejs-middle {					font-size:0px;				}				/* inside border trick. this is removed for ie/opera */				#guidejs-content {					pointer-events: none; /* So that content inside has mouse events */					overflow:hidden;				}				#guidejs-content .guidejs-border {					display: block;					height: 100%;					width: 100%;					box-shadow: 0px 0px 0px 15px rgba(0, 0, 0, .7);					border-radius: 5px;				}			</style>";
+      guidejs.prototype.css = "<style>				#guidejs-top,				#guidejs-left,				#guidejs-content,				#guidejs-right,				#guidejs-bottom {					position: fixed;					top: 0px;					display: block;					z-index: 999999;				}				.guidejs-row {					width:100%;				}				.guidejs-shade				{					background: rgba(0, 0, 0, .7); /* todo: support non-rgba */				}				/* inside border trick. this is removed for ie/opera */				#guidejs-content {					pointer-events: none; /* So that content inside has mouse events */					overflow:hidden;				}				#guidejs-content .guidejs-border {					display: block;					height: 100%;					width: 100%;					box-shadow: 0px 0px 0px 15px rgba(0, 0, 0, .7);					border-radius: 5px;				}			</style>";
 
       return guidejs;
 
     })();
     return $.fn.guidejs = function(options) {
       return this.each(function() {
+        console.log(this);
         if (!window.guidejs) {
-          return window.guidejs = new guidejs(this, options).add_to_queue(this);
+          return window.guidejs = new guidejs(this, {}).add_to_queue(this, options);
         } else {
-          return window.guidejs.add_to_queue(this);
+          return window.guidejs.add_to_queue(this, options);
         }
       });
     };
   })(jQuery);
 
-  $("#logo").guidejs({
+  $("h2").guidejs({
     padding: 0,
+    timer: 2000
+  });
+
+  $("#logo").guidejs({
+    padding: 20,
     timer: 2000
   });
 
@@ -194,6 +245,9 @@ License shit goes here
   adding a few elements will add them to the queue
   
   ...
+  
+  callback on end of the loop
+  	window.guidejs.nothing_to_play = function(){ ... }
   */
 
 
