@@ -11,7 +11,6 @@ License shit goes here
 
 
 (function() {
-  var tutorial;
 
   (function($) {
     var guidejs;
@@ -265,19 +264,6 @@ License shit goes here
       });
     };
   })(jQuery);
-
-  tutorial = "<div style='width:500px; height:200px; background: white'>	hello world</div>";
-
-  $("h2").guidejs({
-    padding: 0,
-    html: tutorial,
-    position: 'right'
-  });
-
-  $("#logo").guidejs({
-    padding: 20,
-    timer: 2000
-  });
 
   /*
   USAGE

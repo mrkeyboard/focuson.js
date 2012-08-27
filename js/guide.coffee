@@ -5,11 +5,8 @@
 
 Code by Ido Tal
 License shit goes here
-
 ### 
-
 (($) ->
-	
 	# Sup
 	class guidejs 
 
