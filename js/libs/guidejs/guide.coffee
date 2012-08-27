@@ -23,9 +23,9 @@ License shit goes here
 			@conf = $.extend {}, @defaults, options
 
 			# Easy access to elements
-			@$shades = $ '#guidejs-top, #guidejs-left, #guidejs-right, #guidejs-bottom, #guidejs-content'
+			@$shades = $ '#guidejs-top, #guidejs-left, #guidejs-right, #guidejs-bottom, #guidejs-focus'
 			# ...
-			@content = $ '#guidejs-content'
+			@focus = $ '#guidejs-focus'
 			@top 	 = $ '#guidejs-top'
 			@bottom  = $ '#guidejs-bottom'
 			@right 	 = $ '#guidejs-right'
@@ -61,7 +61,7 @@ License shit goes here
 					step: () =>
 						@render.apply @
 			
-			# TODO: if prevent scroll, and target outside, then scroll to
+			# TODO: if auto_scroll, and target outside, then scroll to
 
 		# Update 
 		render: ->
@@ -112,7 +112,7 @@ License shit goes here
 				width  : camera.width - (left.width + content.width)
 
 			@left.css 		left
-			@content.css 	content
+			@focus.css 	content
 			@right.css 		right
 		
 
@@ -151,15 +151,23 @@ License shit goes here
 		# Public fns
 
 		set_html: (content, direction) ->
+			# Get all z-indexes back to 999999,
 			@$shades.css('z-index', 999999)
+			# Now append the html to the right side, 
 			@html.appendTo('#guidejs-' + direction)
-				.parent().css('z-index', 1999999)
-			@html.css(top:'auto',bottom:'auto',left:'auto',right:'auto')
+				.parent().css('z-index', 1999999) # and raise its z-index
+
+			# ...
+
+			# Reset:
+			#@html.css(top:'auto',bottom:'auto',left:'auto',right:'auto')
 			#console.log(@opposite(direction) , "??")
-			new_css = {}
-			new_css[@opposite(direction)] = '0px' 
+			#new_css = {}
+			#new_css[@opposite(direction)] = '0px' 
 			# todo also top bottom
-			@html.html(content).css(new_css)
+
+			# Attach the html
+			$('#guidejs-html-inner', @html).html(content)#.css(new_css)
 
 		# Add an element to the queue
 		add_to_queue: (element, options) ->
@@ -170,12 +178,13 @@ License shit goes here
 			# Start playing unless we have an option saying otherwise
 			do @play if not @playing
 		
-		show: ->
+		show: (play = no) ->
 			@$shades.clearQueue()
 				.show(0)
 				.fadeTo(@conf.fade_time, 1)
 
 			# play?
+			return @
 
 		hide: ->
 			# Fadeout
@@ -210,12 +219,12 @@ License shit goes here
 		queue: []
 		timer: no # current timer reference
 		target: 
-			top  : 	0 
+			top  : 	0
 			left : 	0
 			h    :  $(window).height()
 			w    :  $(window).width()
 			el   :  window
-		nothing_to_play: false 		#fn
+		nothing_to_play: false #fn
 		
 		# Global defaults
 		conf: {}
@@ -238,14 +247,14 @@ License shit goes here
 		
 		$els: $ "	<div id='guidejs-top' class='guidejs-row guidejs-shade'></div>
 					<div id='guidejs-left' class='guidejs-shade'></div>
-					<div id='guidejs-content'><div class='guidejs-border'></div></div>
+					<div id='guidejs-focus'><div class='guidejs-border'></div></div>
 					<div id='guidejs-right' class='guidejs-shade'></div>
 					<div id='guidejs-bottom' class='guidejs-row guidejs-shade'></div>
-					<div id='guidejs-html'>content</div>"
+					<div id='guidejs-html'><div id='guidejs-html-inner'>content</div></div>"
 		css: "<style>
 				#guidejs-top,
 				#guidejs-left,
-				#guidejs-content,
+				#guidejs-focus,
 				#guidejs-right,
 				#guidejs-bottom {
 					position: fixed;
@@ -267,11 +276,11 @@ License shit goes here
 					background: rgba(0, 0, 0, .7); /* todo: support non-rgba */
 				}
 				/* inside border trick. this is removed for ie/opera */
-				#guidejs-content {
+				#guidejs-focus {
 					pointer-events: none; /* So that content inside has mouse events */
 					overflow:hidden;
 				}
-				#guidejs-content .guidejs-border {
+				#guidejs-focus .guidejs-border {
 					display: block;
 					height: 100%;
 					width: 100%;
@@ -297,48 +306,13 @@ License shit goes here
 			#@.data
 )(jQuery)
 
-###
-USAGE
-
-set up: NOT REQUIRED
-	window.guidejs {global_options:1}
-
-focus on your first element:
-	$('.el').guidejs {element_options:1}
-this will initiate guidejs with its default 
-settings if you didn;t
-
-adding a few elements will add them to the queue
-
-...
-
-callback on end of the loop
-	window.guidejs.nothing_to_play = function(){ ... }
-
 
 
 
 ###
-
-
-
-###
-TODO 
-- 	Put this list as issues on github when it's up
-- 	This was written as a per-element script at first. It is now
-	a global controller of a highlighted 'guide'. Change the init 
-	and general control flow of the script
-- 	Animations: add fade in, fade out on show/hide
--   Add a steps queue - list of jq objs or selectors of targets 
-	as well as HTML content for guidance
 -   Add HTML content ontop of guide. Allow flexibility of positioning
 -   Some calculations are wrong. The outcome looks ok but I think some
 	elements go out of the window and they shouldn't. Extra check 
 	horizontal cases
--   Allow the cool-ass corner border only for browsers with 
-	pointer-events:none support. That way the element can be ontop of
-	things without fucking up mouse events of the focused content
--   change_target functin, receives an element and animates to it
--   gogogo
 
 ###

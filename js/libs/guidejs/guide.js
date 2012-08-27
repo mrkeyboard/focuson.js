@@ -26,8 +26,8 @@ License shit goes here
           window.guidejs = this;
         }
         this.conf = $.extend({}, this.defaults, options);
-        this.$shades = $('#guidejs-top, #guidejs-left, #guidejs-right, #guidejs-bottom, #guidejs-content');
-        this.content = $('#guidejs-content');
+        this.$shades = $('#guidejs-top, #guidejs-left, #guidejs-right, #guidejs-bottom, #guidejs-focus');
+        this.focus = $('#guidejs-focus');
         this.top = $('#guidejs-top');
         this.bottom = $('#guidejs-bottom');
         this.right = $('#guidejs-right');
@@ -104,7 +104,7 @@ License shit goes here
           width: camera.width - (left.width + content.width)
         };
         this.left.css(left);
-        this.content.css(content);
+        this.focus.css(content);
         return this.right.css(right);
       };
 
@@ -151,18 +151,9 @@ License shit goes here
       };
 
       guidejs.prototype.set_html = function(content, direction) {
-        var new_css;
         this.$shades.css('z-index', 999999);
         this.html.appendTo('#guidejs-' + direction).parent().css('z-index', 1999999);
-        this.html.css({
-          top: 'auto',
-          bottom: 'auto',
-          left: 'auto',
-          right: 'auto'
-        });
-        new_css = {};
-        new_css[this.opposite(direction)] = '0px';
-        return this.html.html(content).css(new_css);
+        return $('#guidejs-html-inner', this.html).html(content);
       };
 
       guidejs.prototype.add_to_queue = function(element, options) {
@@ -180,8 +171,12 @@ License shit goes here
         }
       };
 
-      guidejs.prototype.show = function() {
-        return this.$shades.clearQueue().show(0).fadeTo(this.conf.fade_time, 1);
+      guidejs.prototype.show = function(play) {
+        if (play == null) {
+          play = false;
+        }
+        this.$shades.clearQueue().show(0).fadeTo(this.conf.fade_time, 1);
+        return this;
       };
 
       guidejs.prototype.hide = function() {
@@ -247,9 +242,9 @@ License shit goes here
         position: 'top'
       };
 
-      guidejs.prototype.$els = $("	<div id='guidejs-top' class='guidejs-row guidejs-shade'></div>					<div id='guidejs-left' class='guidejs-shade'></div>					<div id='guidejs-content'><div class='guidejs-border'></div></div>					<div id='guidejs-right' class='guidejs-shade'></div>					<div id='guidejs-bottom' class='guidejs-row guidejs-shade'></div>					<div id='guidejs-html'>content</div>");
+      guidejs.prototype.$els = $("	<div id='guidejs-top' class='guidejs-row guidejs-shade'></div>					<div id='guidejs-left' class='guidejs-shade'></div>					<div id='guidejs-focus'><div class='guidejs-border'></div></div>					<div id='guidejs-right' class='guidejs-shade'></div>					<div id='guidejs-bottom' class='guidejs-row guidejs-shade'></div>					<div id='guidejs-html'><div id='guidejs-html-inner'>content</div></div>");
 
-      guidejs.prototype.css = "<style>				#guidejs-top,				#guidejs-left,				#guidejs-content,				#guidejs-right,				#guidejs-bottom {					position: fixed;					top: 0px;					display: block;					z-index: 999999;				}				#guidejs-html {					position: absolute;					top: 0px;					left: 0px;					z-index: 1000000;				}				.guidejs-row {					width:100%;				}				.guidejs-shade				{					background: rgba(0, 0, 0, .7); /* todo: support non-rgba */				}				/* inside border trick. this is removed for ie/opera */				#guidejs-content {					pointer-events: none; /* So that content inside has mouse events */					overflow:hidden;				}				#guidejs-content .guidejs-border {					display: block;					height: 100%;					width: 100%;					box-shadow: 0px 0px 0px 15px rgba(0, 0, 0, .7);					border-radius: 5px;				}			</style>";
+      guidejs.prototype.css = "<style>				#guidejs-top,				#guidejs-left,				#guidejs-focus,				#guidejs-right,				#guidejs-bottom {					position: fixed;					top: 0px;					display: block;					z-index: 999999;				}				#guidejs-html {					position: absolute;					top: 0px;					left: 0px;					z-index: 1000000;				}				.guidejs-row {					width:100%;				}				.guidejs-shade				{					background: rgba(0, 0, 0, .7); /* todo: support non-rgba */				}				/* inside border trick. this is removed for ie/opera */				#guidejs-focus {					pointer-events: none; /* So that content inside has mouse events */					overflow:hidden;				}				#guidejs-focus .guidejs-border {					display: block;					height: 100%;					width: 100%;					box-shadow: 0px 0px 0px 15px rgba(0, 0, 0, .7);					border-radius: 5px;				}			</style>";
 
       return guidejs;
 
@@ -266,43 +261,10 @@ License shit goes here
   })(jQuery);
 
   /*
-  USAGE
-  
-  set up: NOT REQUIRED
-  	window.guidejs {global_options:1}
-  
-  focus on your first element:
-  	$('.el').guidejs {element_options:1}
-  this will initiate guidejs with its default 
-  settings if you didn;t
-  
-  adding a few elements will add them to the queue
-  
-  ...
-  
-  callback on end of the loop
-  	window.guidejs.nothing_to_play = function(){ ... }
-  */
-
-
-  /*
-  TODO 
-  - 	Put this list as issues on github when it's up
-  - 	This was written as a per-element script at first. It is now
-  	a global controller of a highlighted 'guide'. Change the init 
-  	and general control flow of the script
-  - 	Animations: add fade in, fade out on show/hide
-  -   Add a steps queue - list of jq objs or selectors of targets 
-  	as well as HTML content for guidance
   -   Add HTML content ontop of guide. Allow flexibility of positioning
   -   Some calculations are wrong. The outcome looks ok but I think some
   	elements go out of the window and they shouldn't. Extra check 
   	horizontal cases
-  -   Allow the cool-ass corner border only for browsers with 
-  	pointer-events:none support. That way the element can be ontop of
-  	things without fucking up mouse events of the focused content
-  -   change_target functin, receives an element and animates to it
-  -   gogogo
   */
 
 
