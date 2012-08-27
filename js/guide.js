@@ -11,6 +11,7 @@ License shit goes here
 
 
 (function() {
+  var tutorial;
 
   (function($) {
     var guidejs;
@@ -26,12 +27,13 @@ License shit goes here
           window.guidejs = this;
         }
         this.conf = $.extend({}, this.defaults, options);
-        this.$shades = $('#guidejs-top, #guidejs-left, #guidejs-right, #guidejs-bottom');
+        this.$shades = $('#guidejs-top, #guidejs-left, #guidejs-right, #guidejs-bottom, #guidejs-content');
         this.content = $('#guidejs-content');
         this.top = $('#guidejs-top');
         this.bottom = $('#guidejs-bottom');
         this.right = $('#guidejs-right');
         this.left = $('#guidejs-left');
+        this.html = $('#guidejs-html');
         this.nothing_to_play = this.hide;
       }
 
@@ -114,11 +116,18 @@ License shit goes here
         }
         this.el_conf = this.queue.shift();
         if (!this.el_conf) {
-          return (typeof this.nothing_to_play === 'function' ? this.nothing_to_play() : void 0) && this.stop;
+          if (typeof this.nothing_to_play === 'function') {
+            this.nothing_to_play();
+          }
+          this.stop();
+          return;
+        }
+        if (this.el_conf.html) {
+          this.set_html(this.el_conf.html, this.el_conf.position);
         }
         setTimeout(function() {
           return _this.set_target(_this.el_conf.el);
-        }, 0);
+        }, 10);
         $('body').css('overflow', this.el_conf.prevent_scroll ? 'hidden' : 'auto');
         if (this.el_conf.timer) {
           this.timer = setTimeout(function() {
@@ -126,6 +135,35 @@ License shit goes here
           }, this.el_conf.timer);
         }
         return this;
+      };
+
+      guidejs.prototype.opposite = function(direction) {
+        if (direction === 'right') {
+          return 'left';
+        } else if (direction === 'left') {
+          return 'right';
+        }
+        if (direction === 'top') {
+          return 'bottom';
+        } else if (direction === 'bottom') {
+          return 'top';
+        }
+        return direction;
+      };
+
+      guidejs.prototype.set_html = function(content, direction) {
+        var new_css;
+        this.$shades.css('z-index', 999999);
+        this.html.appendTo('#guidejs-' + direction).parent().css('z-index', 1999999);
+        this.html.css({
+          top: 'auto',
+          bottom: 'auto',
+          left: 'auto',
+          right: 'auto'
+        });
+        new_css = {};
+        new_css[this.opposite(direction)] = '0px';
+        return this.html.html(content).css(new_css);
       };
 
       guidejs.prototype.add_to_queue = function(element, options) {
@@ -144,11 +182,11 @@ License shit goes here
       };
 
       guidejs.prototype.show = function() {
-        return this.$els.clearQueue().show(0).fadeTo(this.conf.fade_time, 1);
+        return this.$shades.clearQueue().show(0).fadeTo(this.conf.fade_time, 1);
       };
 
       guidejs.prototype.hide = function() {
-        this.$els.clearQueue().fadeTo(this.conf.fade_time, 0);
+        this.$shades.clearQueue().fadeTo(this.conf.fade_time, 0);
         return this.stop();
       };
 
@@ -203,22 +241,22 @@ License shit goes here
       guidejs.prototype.el_defaults = {
         padding: 5,
         corner: 5,
-        timer: 2000,
+        timer: false,
         transition: 500,
         prevent_scroll: false,
-        html: false
+        html: false,
+        position: 'top'
       };
 
-      guidejs.prototype.$els = $("	<div id='guidejs-top' class='guidejs-row guidejs-shade'></div>					<div id='guidejs-left' class='guidejs-shade'></div>					<div id='guidejs-content'><div class='guidejs-border'></div></div>					<div id='guidejs-right' class='guidejs-shade'></div>					<div id='guidejs-bottom' class='guidejs-row guidejs-shade'></div>					<div id='guidejs-html'></div>");
+      guidejs.prototype.$els = $("	<div id='guidejs-top' class='guidejs-row guidejs-shade'></div>					<div id='guidejs-left' class='guidejs-shade'></div>					<div id='guidejs-content'><div class='guidejs-border'></div></div>					<div id='guidejs-right' class='guidejs-shade'></div>					<div id='guidejs-bottom' class='guidejs-row guidejs-shade'></div>					<div id='guidejs-html'>content</div>");
 
-      guidejs.prototype.css = "<style>				#guidejs-top,				#guidejs-left,				#guidejs-content,				#guidejs-right,				#guidejs-bottom {					position: fixed;					top: 0px;					display: block;					z-index: 999999;				}				.guidejs-row {					width:100%;				}				.guidejs-shade				{					background: rgba(0, 0, 0, .7); /* todo: support non-rgba */				}				#guidejs-html {					z-index: 1000000;				}				/* inside border trick. this is removed for ie/opera */				#guidejs-content {					pointer-events: none; /* So that content inside has mouse events */					overflow:hidden;				}				#guidejs-content .guidejs-border {					display: block;					height: 100%;					width: 100%;					box-shadow: 0px 0px 0px 15px rgba(0, 0, 0, .7);					border-radius: 5px;				}			</style>";
+      guidejs.prototype.css = "<style>				#guidejs-top,				#guidejs-left,				#guidejs-content,				#guidejs-right,				#guidejs-bottom {					position: fixed;					top: 0px;					display: block;					z-index: 999999;				}				#guidejs-html {					position: absolute;					top: 0px;					left: 0px;					z-index: 1000000;				}				.guidejs-row {					width:100%;				}				.guidejs-shade				{					background: rgba(0, 0, 0, .7); /* todo: support non-rgba */				}				/* inside border trick. this is removed for ie/opera */				#guidejs-content {					pointer-events: none; /* So that content inside has mouse events */					overflow:hidden;				}				#guidejs-content .guidejs-border {					display: block;					height: 100%;					width: 100%;					box-shadow: 0px 0px 0px 15px rgba(0, 0, 0, .7);					border-radius: 5px;				}			</style>";
 
       return guidejs;
 
     })();
     return $.fn.guidejs = function(options) {
       return this.each(function() {
-        console.log(this);
         if (!window.guidejs) {
           return window.guidejs = new guidejs(this, {}).add_to_queue(this, options);
         } else {
@@ -228,9 +266,12 @@ License shit goes here
     };
   })(jQuery);
 
+  tutorial = "<div style='width:500px; height:200px; background: white'>	hello world</div>";
+
   $("h2").guidejs({
     padding: 0,
-    timer: 2000
+    html: tutorial,
+    position: 'right'
   });
 
   $("#logo").guidejs({

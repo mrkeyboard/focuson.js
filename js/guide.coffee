@@ -26,13 +26,14 @@ License shit goes here
 			@conf = $.extend {}, @defaults, options
 
 			# Easy access to elements
-			@$shades = $ '#guidejs-top, #guidejs-left, #guidejs-right, #guidejs-bottom'
+			@$shades = $ '#guidejs-top, #guidejs-left, #guidejs-right, #guidejs-bottom, #guidejs-content'
 			# ...
 			@content = $ '#guidejs-content'
 			@top 	 = $ '#guidejs-top'
 			@bottom  = $ '#guidejs-bottom'
 			@right 	 = $ '#guidejs-right'
 			@left 	 = $ '#guidejs-left'
+			@html 	 = $ '#guidejs-html'
 
 			#@$shades.css
 			#	'background-color': @conf.shade_color # @conf.shade_opacity	
@@ -123,11 +124,18 @@ License shit goes here
 			# Get the next one to play
 			@el_conf = @queue.shift()
 			# Gto if we don't have anything. Execute the nothing fn if it exists
-			return ((@nothing_to_play() if typeof @nothing_to_play is 'function') and @stop) if not @el_conf
+			if not @el_conf
+				@nothing_to_play() if typeof @nothing_to_play is 'function'
+				@stop()
+				return 
+			
+			# ...
+			@set_html(@el_conf.html, @el_conf.position) if @el_conf.html
+			
 			# Execute the next target
 			setTimeout ()=> 
 				@set_target @el_conf.el
-			, 0
+			, 10
 			# Page scroll
 			$('body').css('overflow', if @el_conf.prevent_scroll then 'hidden' else 'auto')
 			# The autoplay timer if the object's got some
@@ -138,7 +146,23 @@ License shit goes here
 			
 			return @
 
+		opposite: (direction) ->
+			if direction is 'right' then return 'left' else if direction is 'left' then return 'right'
+			if direction is 'top' then return 'bottom' else if direction is 'bottom' then return 'top'
+			return direction
+
 		# Public fns
+
+		set_html: (content, direction) ->
+			@$shades.css('z-index', 999999)
+			@html.appendTo('#guidejs-' + direction)
+				.parent().css('z-index', 1999999)
+			@html.css(top:'auto',bottom:'auto',left:'auto',right:'auto')
+			#console.log(@opposite(direction) , "??")
+			new_css = {}
+			new_css[@opposite(direction)] = '0px' 
+			# todo also top bottom
+			@html.html(content).css(new_css)
 
 		# Add an element to the queue
 		add_to_queue: (element, options) ->
@@ -150,7 +174,7 @@ License shit goes here
 			do @play if not @playing
 		
 		show: ->
-			@$els.clearQueue()
+			@$shades.clearQueue()
 				.show(0)
 				.fadeTo(@conf.fade_time, 1)
 
@@ -158,9 +182,8 @@ License shit goes here
 
 		hide: ->
 			# Fadeout
-			@$els.clearQueue()
+			@$shades.clearQueue()
 				.fadeTo(@conf.fade_time, 0)
-				#.hide(0) # jq error ??
 			# Stop any ongoing shits
 			do @stop
 
@@ -190,35 +213,38 @@ License shit goes here
 		queue: []
 		timer: no # current timer reference
 		target: 
-			top: 0 
-			left: 0
-			h: $(window).height()
-			w: $(window).width()
-			el: window
-		nothing_to_play: false #fn
+			top  : 	0 
+			left : 	0
+			h    :  $(window).height()
+			w    :  $(window).width()
+			el   :  window
+		nothing_to_play: false 		#fn
+		
 		# Global defaults
 		conf: {}
 		defaults: 
 			fade_time		: 250  	# In ms, time to fade in/out
 			shade_opacity   : 0.7   # Opacity of the background
 			shade_color     : '#0'  # Color of the background
+		
 		# Per-element on queue defaults
 		el_conf: {}
 		el_defaults:
 			padding			: 5 	# In px, extra spacing from the element
 			corner			: 5 	# In px, round corners 
 			#auto_play		: no 	# Should it autoplay?
-			timer			: 2000  # In ms, speed of the autoplay
+			timer			: no  # In ms, speed of the autoplay
 			transition  	: 500   # In ms, speed of transition. 0 for disabled
 			prevent_scroll	: no	# Prevent scroll
 			html 			: no    # HTML to put next to the focused element
+			position        : 'top'
 		
 		$els: $ "	<div id='guidejs-top' class='guidejs-row guidejs-shade'></div>
 					<div id='guidejs-left' class='guidejs-shade'></div>
 					<div id='guidejs-content'><div class='guidejs-border'></div></div>
 					<div id='guidejs-right' class='guidejs-shade'></div>
 					<div id='guidejs-bottom' class='guidejs-row guidejs-shade'></div>
-					<div id='guidejs-html'></div>"
+					<div id='guidejs-html'>content</div>"
 		css: "<style>
 				#guidejs-top,
 				#guidejs-left,
@@ -230,15 +256,18 @@ License shit goes here
 					display: block;
 					z-index: 999999;
 				}
+				#guidejs-html {
+					position: absolute;
+					top: 0px;
+					left: 0px;
+					z-index: 1000000;
+				}
 				.guidejs-row {
 					width:100%;
 				}
 				.guidejs-shade
 				{
 					background: rgba(0, 0, 0, .7); /* todo: support non-rgba */
-				}
-				#guidejs-html {
-					z-index: 1000000;
 				}
 				/* inside border trick. this is removed for ie/opera */
 				#guidejs-content {
@@ -254,18 +283,16 @@ License shit goes here
 				}
 			</style>"
 
-	# JQuery element function
+	# JQuery function
 	$.fn.guidejs = (options)->
 		# Add element to the queue
 		return @each ->
-			console.log @
+			#console.log "adding", @
 			if not window.guidejs
 				# Initiate a new class if we don't have one
 				window.guidejs = new guidejs(@, {}).add_to_queue @, options
 			else 
 				window.guidejs.add_to_queue @, options
-
-
 			#if not $(@).data('accent') # init, param = options
 			#	$(@).data('accent', new Accent(@, param)) 
 			#else if typeof param is 'string' # function, param = function string
@@ -273,7 +300,12 @@ License shit goes here
 			#@.data
 )(jQuery)
 
-$("h2").guidejs {padding: 0, timer: 2000}
+tutorial = "
+<div style='width:500px; height:200px; background: white'>
+	hello world
+</div>"
+
+$("h2").guidejs {padding: 0, html: tutorial, position: 'right'}
 $("#logo").guidejs {padding: 20, timer:2000}
 #$("h3").guidejs {padding: 5, html:'blah <a href="#" class="guidejs-next">nigga</a>'}
 
