@@ -6,7 +6,7 @@
 # # # # # # # # # # # # # # # # # # # # #
 
 Code by Ido Tal
-License shit goes here
+...
 */
 
 
@@ -293,13 +293,5 @@ License shit goes here
       });
     };
   })(jQuery);
-
-  /*
-  -   Add HTML content ontop of guide. Allow flexibility of positioning
-  -   Some calculations are wrong. The outcome looks ok but I think some
-  	elements go out of the window and they shouldn't. Extra check 
-  	horizontal cases
-  */
-
 
 }).call(this);
