@@ -24,6 +24,22 @@
 	<link rel="stylesheet" href="css/style.css">
 
 	<script src="js/libs/modernizr-2.5.3-respond-1.1.0.min.js"></script>
+
+  <style>
+    .tutorial-sample {
+      width:350px; 
+      height:120px; 
+      margin:10px; 
+      padding:10px;
+      line-height:20px;
+      background: rgba(255,255,255,.9);
+      border-radius: 10px;
+      border: 3px solid rgba(0,0,0,.1);;
+    }
+    .guidejs-hide {
+      margin-left: 150px;
+    }
+  </style>
 </head>
 <body>
 <!--[if lt IE 7]><p class=chromeframe>Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
@@ -91,11 +107,11 @@
 <script src="js/libs/guidejs/guide.js"></script>
 <script>
 
-  var tutorial = "<div style='width:500px; height:200px; background: white'>hello world</div>"
+  var tutorial = "<div class='tutorial-sample'><p>Hello world! This is a sample text. The button here is a simple bootstrap button with the class 'guidejs-next' attached to it, so hitting that button within this html block will trigger the next element in the queue. </p><a class='btn btn-success guidejs-next'>Next step please!</a><a class='btn guidejs-hide'>Gtfo</a></div>"
 
-  $("h1").guidejs({padding: 0, html:tutorial, position:'top'});
-  $("h2").guidejs({padding: 0, timer:2000});
-  $("h3").guidejs({padding: 0, timer:2000});
+  $("h1").guidejs({padding: 20, html:tutorial, position:'bottom'});
+  $("h2").guidejs({padding: 0, timer:2500});
+  
   //$("#logo").guidejs({padding: 20, timer:2000});
   //$("h3").guidejs {padding: 5, html:'blah <a href="#" class="guidejs-next">nigga</a>'}
 </script>

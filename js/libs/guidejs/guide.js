@@ -110,9 +110,6 @@ License shit goes here
 
       guidejs.prototype.play_next = function() {
         var _this = this;
-        if (!this.playing) {
-          return console.log("play_next when not playing");
-        }
         this.el_conf = this.queue.shift();
         if (!this.el_conf) {
           if (typeof this.nothing_to_play === 'function') {
@@ -121,9 +118,16 @@ License shit goes here
           this.stop();
           return;
         }
+        this.remove_html();
         if (this.el_conf.html) {
           this.set_html(this.el_conf.html, this.el_conf.position);
         }
+        this.html.on('click', '.guidejs-next', function() {
+          return _this.play_next.apply(_this);
+        });
+        this.html.on('click', '.guidejs-hide', function() {
+          return _this.hide.apply(_this);
+        });
         setTimeout(function() {
           return _this.set_target(_this.el_conf.el);
         }, 10);
@@ -151,9 +155,37 @@ License shit goes here
       };
 
       guidejs.prototype.set_html = function(content, direction) {
+        var wrapper_css;
         this.$shades.css('z-index', 999999);
         this.html.appendTo('#guidejs-' + direction).parent().css('z-index', 1999999);
+        this.html.css({
+          top: 'auto',
+          bottom: 'auto',
+          left: 'auto',
+          right: 'auto',
+          width: 'auto'
+        });
+        wrapper_css = {};
+        wrapper_css[this.opposite(direction)] = '0px';
+        if (direction === 'top' || direction === 'bottom') {
+          wrapper_css['text-align'] = 'center';
+          wrapper_css['width'] = '100%';
+        } else {
+          wrapper_css['text-align'] = this.opposite(direction);
+        }
+        this.html.css(wrapper_css);
         return $('#guidejs-html-inner', this.html).html(content);
+      };
+
+      guidejs.prototype.remove_html = function(time) {
+        var $old_html;
+        if (time == null) {
+          time = 100;
+        }
+        $old_html = $($('#guidejs-html-inner', this.html).children());
+        return $old_html.fadeTo(time, 0, function() {
+          return $(this).remove();
+        });
       };
 
       guidejs.prototype.add_to_queue = function(element, options) {
@@ -180,7 +212,9 @@ License shit goes here
       };
 
       guidejs.prototype.hide = function() {
-        this.$shades.clearQueue().fadeTo(this.conf.fade_time, 0);
+        this.$shades.clearQueue().fadeTo(this.conf.fade_time, 0, function() {
+          return $(this).hide(0);
+        });
         return this.stop();
       };
 
@@ -244,7 +278,7 @@ License shit goes here
 
       guidejs.prototype.$els = $("	<div id='guidejs-top' class='guidejs-row guidejs-shade'></div>					<div id='guidejs-left' class='guidejs-shade'></div>					<div id='guidejs-focus'><div class='guidejs-border'></div></div>					<div id='guidejs-right' class='guidejs-shade'></div>					<div id='guidejs-bottom' class='guidejs-row guidejs-shade'></div>					<div id='guidejs-html'><div id='guidejs-html-inner'>content</div></div>");
 
-      guidejs.prototype.css = "<style>				#guidejs-top,				#guidejs-left,				#guidejs-focus,				#guidejs-right,				#guidejs-bottom {					position: fixed;					top: 0px;					display: block;					z-index: 999999;				}				#guidejs-html {					position: absolute;					top: 0px;					left: 0px;					z-index: 1000000;				}				.guidejs-row {					width:100%;				}				.guidejs-shade				{					background: rgba(0, 0, 0, .7); /* todo: support non-rgba */				}				/* inside border trick. this is removed for ie/opera */				#guidejs-focus {					pointer-events: none; /* So that content inside has mouse events */					overflow:hidden;				}				#guidejs-focus .guidejs-border {					display: block;					height: 100%;					width: 100%;					box-shadow: 0px 0px 0px 15px rgba(0, 0, 0, .7);					border-radius: 5px;				}			</style>";
+      guidejs.prototype.css = "<style>				#guidejs-top,				#guidejs-left,				#guidejs-focus,				#guidejs-right,				#guidejs-bottom {					position: fixed;					top: 0px;					display: block;					z-index: 999999;				}				#guidejs-html {					position: absolute;					z-index: 1000000;					width: 100%;				}				#guidejs-html-inner {					display: inline-block; /* so we can center it */					text-align:left;				}				.guidejs-row {					width:100%;				}				.guidejs-shade				{					background: rgba(0, 0, 0, .7); /* todo: support non-rgba */				}				/* inside border trick. this is removed for ie/opera */				#guidejs-focus {					pointer-events: none; /* So that content inside has mouse events */					overflow:hidden;				}				#guidejs-focus .guidejs-border {					display: block;					height: 100%;					width: 100%;					box-shadow: 0px 0px 0px 15px rgba(0, 0, 0, .7);					border-radius: 5px;				}			</style>";
 
       return guidejs;
 

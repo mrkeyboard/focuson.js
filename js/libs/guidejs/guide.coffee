@@ -117,7 +117,7 @@ License shit goes here
 		
 
 		play_next: () ->
-			return console.log("play_next when not playing") if not @playing
+			#return console.log("play_next when not playing") if not @playing
 			# Get the next one to play
 			@el_conf = @queue.shift()
 			# Gto if we don't have anything. Execute the nothing fn if it exists
@@ -126,9 +126,13 @@ License shit goes here
 				@stop()
 				return 
 			
-			# ...
+			# Add HTML or re
+			@remove_html()
 			@set_html(@el_conf.html, @el_conf.position) if @el_conf.html
-			
+			# Events
+			@html.on 'click', '.guidejs-next', => @play_next.apply @
+			@html.on 'click', '.guidejs-hide', => @hide.apply @
+
 			# Execute the next target
 			setTimeout ()=> 
 				@set_target @el_conf.el
@@ -148,8 +152,6 @@ License shit goes here
 			if direction is 'top' then return 'bottom' else if direction is 'bottom' then return 'top'
 			return direction
 
-		# Public fns
-
 		set_html: (content, direction) ->
 			# Get all z-indexes back to 999999,
 			@$shades.css('z-index', 999999)
@@ -157,17 +159,28 @@ License shit goes here
 			@html.appendTo('#guidejs-' + direction)
 				.parent().css('z-index', 1999999) # and raise its z-index
 
-			# ...
-
 			# Reset:
-			#@html.css(top:'auto',bottom:'auto',left:'auto',right:'auto')
-			#console.log(@opposite(direction) , "??")
-			#new_css = {}
-			#new_css[@opposite(direction)] = '0px' 
-			# todo also top bottom
+			@html.css(top:'auto',bottom:'auto',left:'auto',right:'auto', width: 'auto')
+			# Positioning for the html wrapper
+			wrapper_css = {}
+			wrapper_css[@opposite(direction)] = '0px' 
+			if direction is 'top' or direction is 'bottom'
+				wrapper_css['text-align'] = 'center'
+				wrapper_css['width'] = '100%'
+			else 
+				wrapper_css['text-align'] = @opposite direction
+				# ... not perfect, more work to be done here
+			
+			@html.css wrapper_css
 
 			# Attach the html
-			$('#guidejs-html-inner', @html).html(content)#.css(new_css)
+			$('#guidejs-html-inner', @html).html(content)
+
+		remove_html: (time = 100) ->
+			$old_html = $ $('#guidejs-html-inner', @html).children()
+			$old_html.fadeTo time, 0, -> do $(@).remove
+
+		# Public fns
 
 		# Add an element to the queue
 		add_to_queue: (element, options) ->
@@ -181,7 +194,7 @@ License shit goes here
 		show: (play = no) ->
 			@$shades.clearQueue()
 				.show(0)
-				.fadeTo(@conf.fade_time, 1)
+				.fadeTo @conf.fade_time, 1
 
 			# play?
 			return @
@@ -189,7 +202,7 @@ License shit goes here
 		hide: ->
 			# Fadeout
 			@$shades.clearQueue()
-				.fadeTo(@conf.fade_time, 0)
+				.fadeTo @conf.fade_time, 0, -> $(@).hide(0)
 			# Stop any ongoing shits
 			do @stop
 
@@ -264,9 +277,12 @@ License shit goes here
 				}
 				#guidejs-html {
 					position: absolute;
-					top: 0px;
-					left: 0px;
 					z-index: 1000000;
+					width: 100%;
+				}
+				#guidejs-html-inner {
+					display: inline-block; /* so we can center it */
+					text-align:left;
 				}
 				.guidejs-row {
 					width:100%;
