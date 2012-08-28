@@ -127,7 +127,7 @@ License shit goes here
 				return 
 			
 			# ...
-			@set_html(@el_conf.html, @el_conf.position) if @el_conf.html
+			if @el_conf.html then @set_html(@el_conf.html, @el_conf.position) else @remove_html()
 			
 			# Execute the next target
 			setTimeout ()=> 
@@ -157,17 +157,26 @@ License shit goes here
 			@html.appendTo('#guidejs-' + direction)
 				.parent().css('z-index', 1999999) # and raise its z-index
 
-			# ...
-
 			# Reset:
-			#@html.css(top:'auto',bottom:'auto',left:'auto',right:'auto')
-			#console.log(@opposite(direction) , "??")
-			#new_css = {}
-			#new_css[@opposite(direction)] = '0px' 
-			# todo also top bottom
+			@html.css(top:'auto',bottom:'auto',left:'auto',right:'auto', width: 'auto')
+			# Positioning for the html wrapper
+			wrapper_css = {}
+			wrapper_css[@opposite(direction)] = '0px' 
+			if direction is 'top' or direction is 'bottom'
+				wrapper_css['text-align'] = 'center'
+				wrapper_css['width'] = '100%'
+			else 
+				wrapper_css['text-align'] = @opposite direction
+				# ... not perfect, more work to be done here
+			
+			@html.css wrapper_css
 
 			# Attach the html
-			$('#guidejs-html-inner', @html).html(content)#.css(new_css)
+			$('#guidejs-html-inner', @html).html(content)
+
+		remove_html: (time = 100) ->
+			$old_html = $ $('#guidejs-html-inner', @html).children()
+			$old_html.fadeTo time, 0, -> do $(@).remove
 
 		# Add an element to the queue
 		add_to_queue: (element, options) ->
@@ -264,9 +273,11 @@ License shit goes here
 				}
 				#guidejs-html {
 					position: absolute;
-					top: 0px;
-					left: 0px;
 					z-index: 1000000;
+					width: 100%;
+				}
+				#guidejs-html-inner {
+					display: inline-block; /* so we can center it */
 				}
 				.guidejs-row {
 					width:100%;

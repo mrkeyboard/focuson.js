@@ -1,5 +1,5 @@
 # guide.js
-A jquery library for making UI tutorials.
+A jquery library for creating UI tutorials.
 
 ## What's it good for?
 If you feel like your UI is just too awesome for users to handle at first glance, and you don't have the time for a redesign, how about a good ol' fashioned UI tutorial? guide.js fades out the whole screen except a single element you provide. 
