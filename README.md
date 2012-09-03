@@ -55,8 +55,6 @@ If a timer wasn't set, guidejs is waiting for an action to tell it to move on to
 
 Here's a list of all possible parameters each element can take, as well as global parameters.
 
-NOTE: The object containing the timer key with the 2500 miliseconds value is the config object. It is NOT the global cofig, but only the given element(s) config.
-
 ### Element 
 Per-element parameters, provided through the first param when initated on an element, as in `$('h2').({params:'go here'})`
 
@@ -76,7 +74,8 @@ Per-element parameters, provided through the first param when initated on an ele
 * `el_default: {}` - default empty, allows you to change the above element defaults. For example, if you know you want a 5 secodns timer between each all elements, you can just set it here instead of in each of them. Usage:
 
 ```javascript
-guidejs.config = {el_default:{timer:5000}, shade_opacity: 0.3} // Note 'el_default' is an object. Don't confuse and put 'timer' up in config directly, it won't work!```
+guidejs.config = {el_default:{timer:5000}, shade_opacity: 0.3} // Note 'el_default' is an object. Don't confuse and put 'timer' up in config directly, it won't work!
+```
 
 
 ## Global functions
