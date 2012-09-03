@@ -8,7 +8,7 @@ Code by Ido Tal
 ### 
 (($) ->
 	# Sup
-	class guidejs 
+	class guidejs
 
 		# Private fns
 		constructor: (options = {}) ->
@@ -50,7 +50,7 @@ Code by Ido Tal
 
 		set_target: (el, animate = 0) ->
 			@target.el = (el = $ el)
-			$(@target).animate 
+			$(@target).animate
 					top: el.offset().top
 					left: el.offset().left
 					h: el.outerHeight()

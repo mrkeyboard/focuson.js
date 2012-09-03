@@ -1,43 +1,55 @@
 # guide.js
-A jquery library for creating UI tutorials. WIP
+A jQuery library for creating UI tutorials.
 
 ## What's it good for?
-If you feel like your UI is just too awesome for users to handle at first glance, and you don't have the time for a redesign, how about a good ol' fashioned UI tutorial? guide.js fades out the whole screen except a single element you provide. 
-
-You can then go and focus on another element - triggered after a set of time or a button click. Along with the focused element, you can easily attach HTML right next to it - allowing you to introduce it to the user and how should they interact with it. 
+If you feel like your UI is just too awesome for users to handle at first glance, how about a good ol' fashioned, step-by-step UI tutorial? guide.js casually fades out the whole screen except a single element you provide.
 
 ## Usage
 
-Include guidejs by adding it to your html right after jquery:
+Include guide.js by adding it to your html right after jquery:
 
-`<script src="js/libs/guidejs/guide.js"></script>`
+```html
+<script src="js/libs/guidejs/guide.js"></script>
+```
 
-Now all you have to do is give guide.js an element through jquery's selector, and it will start the show for you!
+Now all you have to do is give guide.js an element through jQuery's selector selector:
 
-`$("#awesome_ui_element").guidejs();`
+```javascript
+$("#awesome_ui_element").guidejs();
+```
 
 The whole screen should now black out, leaving only the given element in focus. Awesome! 
 
-You may add more elements at any given time. If you add a few elements at once, they will be added to the queue. So in case you add all the h2 elements in your site, like so:
 
-`$("h2").guidejs();`
+If you add a few elements at once, they will be added to the *queue*. For example:
 
-but hey - guidejs will only focused on the first item. So how do we cycle through them? You can define a timer using the element configuration object like so:
+```javascript
+$("h2").guidejs();
+```
 
-`$("h2").guidejs({timer:2500});`
+but hey - guidejs will only focused on the first item. So how do we cycle through them? You can declare a timer using the *element configuration object* like so:
 
-provided with this code, guide.js will go through each title every 2.5 seconds and eventually fade out.
-The object containing the timer key with the 2500 miliseconds value is the config object. It is NOT the global cofig, but only the given element(s) config.
+```javascript
+$("h2").guidejs({timer:2500});
+```
 
-If you want to change the global config, you may do this like so:
+provided with this code, guide.js will go through each h2 title every 2.5 seconds and eventually fade out (because the last h2 element in queue also has a timer, and nothing coems after).
 
-...
 
-...
+NOTE: The object containing the timer key with the 2500 miliseconds value is the config object. It is NOT the global cofig, but only the given element(s) config. More information in Parameters - Global
 
-Going through the queued elements doesn't have to be by timers. You can also have a certain button clicked. So if a timer wasn't set, guidejs is waiting for an action to tell it to move on to the next element. This can be done manually with the guidejs.play() function.
 
-You can also have HTML attached to the 
+If a timer wasn't set, guidejs is waiting for an action to tell it to move on to the next element. This can be done manually with the `guidejs.play()` function, or alternatively, you could have a link in the tutorial-text, with a `guidejs-next` class. 
+
+**Recommended:** You can add HTML right next to the focused item easily! Here's how:
+
+```javascript
+var my_html = $("<div>Awesome stuff in a box! <a class='guidejs-next' href='#'>Next!</a></div>")
+$("h2").guidejs({html:my_html});
+```
+
+my_html will now appear next to the focused h2 element. Notice the `guidejs-js` class on the link inside the provided html - guidejs will recognize it and move on to the next element in the queue by clicking on it. Sweet!
+
 
 ### Making a good tutorial
 
