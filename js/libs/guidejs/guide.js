@@ -28,11 +28,18 @@ Code by Ido Tal
         this.conf = $.extend({}, this.defaults, options);
         this.$shades = $('#guidejs-top, #guidejs-left, #guidejs-right, #guidejs-bottom, #guidejs-focus');
         this.focus = $('#guidejs-focus');
+        this.border = $('#guidejs-focus .guidejs-border');
         this.top = $('#guidejs-top');
         this.bottom = $('#guidejs-bottom');
         this.right = $('#guidejs-right');
         this.left = $('#guidejs-left');
         this.html = $('#guidejs-html');
+        this.$shades.not(this.focus).css({
+          'background-color': 'rgba(' + this.conf.shade_color + ', ' + this.conf.shade_opacity + ')'
+        });
+        this.border.css({
+          'box-shadow': '0px 0px 0px 15px rgba(' + this.conf.shade_color + ', ' + this.conf.shade_opacity + ')'
+        });
         this.nothing_to_play = this.hide;
       }
 
@@ -132,6 +139,9 @@ Code by Ido Tal
           return _this.set_target(_this.el_conf.el);
         }, 10);
         $('body').css('overflow', this.el_conf.prevent_scroll ? 'hidden' : 'auto');
+        this.border.css({
+          'border-radius': this.el_conf.corner + 'px'
+        });
         if (this.el_conf.timer) {
           this.timer = setTimeout(function() {
             return _this.play_next();
@@ -260,8 +270,8 @@ Code by Ido Tal
 
       guidejs.prototype.defaults = {
         fade_time: 250,
-        shade_opacity: 0.7,
-        shade_color: '#0'
+        shade_opacity: '0.5',
+        shade_color: '0, 0, 0'
       };
 
       guidejs.prototype.el_conf = {};

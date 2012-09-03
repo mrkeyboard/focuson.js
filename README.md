@@ -40,7 +40,7 @@ If a timer wasn't set, guidejs is waiting for an action to tell it to move on to
 
 **Recommended:** You can add HTML right next to the focused item easily! Here's how:
 
-```javascript
+```html
 <h2>Hello! Focus on me first.</h2>
 <h2>Me right after!</h2>
 var my_html = $("<div>Awesome stuff in a box! <a class='guidejs-next' href='#'>Next!</a></div>")
@@ -64,18 +64,18 @@ Per-element parameters, provided through the first param when initated on an ele
 * `transition: 500` - in ms, amount of time it takes for the animation to go from the previous element to this one
 * `prevent_scroll: false` - true or false, whether to prevent the page from scrolling or not
 * `auto_scroll: true` - true or false, whether to scroll to the newly focused element if it's out of the user's screen.
-* `html: false` - If not false, contain an html string or a jquery object and appends it next to the focused element. Very recommended, good for extra information about the focused object. 
-* `position: 'left'` - If there's an html to append, position is where to place it. Accepts left, right, top and bottom. Relative to the focused element, of course!
+* `html: false` - If not false, expects an html string or a jquery object. Appends it next to the focused element. Good for extra information about the focused object. 
+* `position: 'left'` - If there's an html to append, position is where to place it. Accepts `left`, `right`, `top` and `bottom`. Relative to the focused element.
 
 ### Global parameters
 
-
-
 * `shade_color: '#0'` - color of the shade
 * `shade_opacity: 0.7` - 0.0-1.0, opacity of the shade
-* `el_default: {}` - default empty, allows you to change the above element defaults. For example, if you know you want a 5 secodns timer between each element, you can just set it here instead of in each element. Usage
+* `el_default: {}` - default empty, allows you to change the above element defaults. For example, if you know you want a 5 secodns timer between each all elements, you can just set it here instead of in each of them. Usage:
+
 ```javascript
 guidejs.config = {el_default:{timer:5000}, shade_opacity: 0.3} // Note 'el_default' is an object. Don't confuse and put 'timer' up in config directly, it won't work!```
+
 
 ## Global functions
 
@@ -89,14 +89,11 @@ TODO window.guidejs.conf
 
 
 ## HTML tips
-
-It's highly recommended to attach HTML to your focused object, as stated in Usage. There are a few more things cool things
-
+WIP 
 .guidejs-next
-
 .guidejs-hide
-
 ...
+
 
 ## Credits
 * guide.js by Ido Tal

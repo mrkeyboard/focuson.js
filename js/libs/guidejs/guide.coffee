@@ -26,19 +26,18 @@ Code by Ido Tal
 			@$shades = $ '#guidejs-top, #guidejs-left, #guidejs-right, #guidejs-bottom, #guidejs-focus'
 			# ...
 			@focus = $ '#guidejs-focus'
+			@border = $ '#guidejs-focus .guidejs-border'
 			@top 	 = $ '#guidejs-top'
 			@bottom  = $ '#guidejs-bottom'
 			@right 	 = $ '#guidejs-right'
 			@left 	 = $ '#guidejs-left'
 			@html 	 = $ '#guidejs-html'
 
-			#@$shades.css
-			#	'background-color': @conf.shade_color # @conf.shade_opacity	
 
+			@$shades.not(@focus).css {'background-color': 'rgba(' + @conf.shade_color + ', ' + @conf.shade_opacity + ')'}
+			@border.css {'box-shadow': '0px 0px 0px 15px rgba(' + @conf.shade_color + ', ' + @conf.shade_opacity + ')'}
+			
 			@nothing_to_play = @hide
-			# Bind events
-			#$(window).on 'resize scroll', => @render.apply @
-			#@play()
 			
 			# ... 
 
@@ -139,6 +138,9 @@ Code by Ido Tal
 			, 10
 			# Page scroll
 			$('body').css('overflow', if @el_conf.prevent_scroll then 'hidden' else 'auto')
+			
+			@border.css {'border-radius': @el_conf.corner+'px'}
+
 			# The autoplay timer if the object's got some
 			if @el_conf.timer			
 				@timer = setTimeout =>
@@ -240,14 +242,14 @@ Code by Ido Tal
 		nothing_to_play: false #fn
 		
 		# Global defaults
-		conf: {}
+		conf: {} # Current
 		defaults: 
-			fade_time		: 250  	# In ms, time to fade in/out
-			shade_opacity   : 0.7   # Opacity of the background
-			shade_color     : '#0'  # Color of the background
+			fade_time		: 250  	    # In ms, time to fade in/out
+			shade_opacity   : '0.5'     # Opacity of the background
+			shade_color     : '0, 0, 0' # Color of the background
 		
 		# Per-element on queue defaults
-		el_conf: {}
+		el_conf: {} # Current
 		el_defaults:
 			padding			: 5 	# In px, extra spacing from the element
 			corner			: 5 	# In px, round corners 
