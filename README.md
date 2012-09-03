@@ -33,10 +33,7 @@ but hey - guidejs will only focused on the first item. So how do we cycle throug
 $("h2").guidejs({timer:2500});
 ```
 
-provided with this code, guide.js will go through each h2 title every 2.5 seconds and eventually fade out (because the last h2 element in queue also has a timer, and nothing coems after).
-
-
-NOTE: The object containing the timer key with the 2500 miliseconds value is the config object. It is NOT the global cofig, but only the given element(s) config. More information in Parameters - Global
+provided with this code, guide.js will go through each h2 title every 2.5 seconds and eventually fade out (because the last h2 element in queue also has a timer, and nothing coems after). Please read below for more information about guide-js parameters.
 
 
 If a timer wasn't set, guidejs is waiting for an action to tell it to move on to the next element. This can be done manually with the `guidejs.play()` function, or alternatively, you could have a link in the tutorial-text, with a `guidejs-next` class. 
@@ -44,24 +41,22 @@ If a timer wasn't set, guidejs is waiting for an action to tell it to move on to
 **Recommended:** You can add HTML right next to the focused item easily! Here's how:
 
 ```javascript
+<h2>Hello! Focus on me first.</h2>
+<h2>Me right after!</h2>
 var my_html = $("<div>Awesome stuff in a box! <a class='guidejs-next' href='#'>Next!</a></div>")
 $("h2").guidejs({html:my_html});
 ```
 
-my_html will now appear next to the focused h2 element. Notice the `guidejs-js` class on the link inside the provided html - guidejs will recognize it and move on to the next element in the queue by clicking on it. Sweet!
-
-
-### Making a good tutorial
-
-As much as I'd like guide.js to just make your site's UI clearer in two lines of code, I can't assure that. For best results, I'd recommend playing around with the parameters provided. Let me introduce what I believe is a good usage of guide.js and also a great UI tutorial of a possibly complex site. 
-
-...
+`my_html` will now appear next to the focused `<h2>` element. Notice the `guidejs-next` class on the link inside the provided html - guidejs will recognize it and move on to the next element in the queue by clicking on it. Sweet!
 
 ## Parameters
 
-Here's a list of all possible parameters each element can take, as well as global parameters
+Here's a list of all possible parameters each element can take, as well as global parameters.
 
-### Element
+NOTE: The object containing the timer key with the 2500 miliseconds value is the config object. It is NOT the global cofig, but only the given element(s) config.
+
+### Element 
+Per-element parameters, provided through the first param when initated on an element, as in `$('h2').({params:'go here'})`
 
 * `timer: 0` - in ms, amount of time between each element in queue. Does not autoplay if 0.
 * `padding: 0` - in px, amount of padding around the item
@@ -72,16 +67,19 @@ Here's a list of all possible parameters each element can take, as well as globa
 * `html: false` - If not false, contain an html string or a jquery object and appends it next to the focused element. Very recommended, good for extra information about the focused object. 
 * `position: 'left'` - If there's an html to append, position is where to place it. Accepts left, right, top and bottom. Relative to the focused element, of course!
 
-### Global
+### Global parameters
+
+
 
 * `shade_color: '#0'` - color of the shade
 * `shade_opacity: 0.7` - 0.0-1.0, opacity of the shade
 * `el_default: {}` - default empty, allows you to change the above element defaults. For example, if you know you want a 5 secodns timer between each element, you can just set it here instead of in each element. Usage
-`guidejs.config = {el_default:{timer:5000}, shade_opacity: 0.3} // Note 'el_default' is an object. Don't confuse and put 'timer' up in config directly, it won't work!`
+```javascript
+guidejs.config = {el_default:{timer:5000}, shade_opacity: 0.3} // Note 'el_default' is an object. Don't confuse and put 'timer' up in config directly, it won't work!```
 
 ## Global functions
 
-* $('.el').guidejs(options = {}) - Adds the given elements to the queue, sets the options given to all of them.
+* `$('.el').guidejs({params:'go here'})` - Adds the given elements to the queue, sets the options given to all of them.
 
 TODO window.guidejs.conf 
 
