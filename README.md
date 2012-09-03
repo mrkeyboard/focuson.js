@@ -43,8 +43,10 @@ If a timer wasn't set, guidejs is waiting for an action to tell it to move on to
 ```html
 <h2>Hello! Focus on me first.</h2>
 <h2>Me right after!</h2>
-var my_html = $("<div>Awesome stuff in a box! <a class='guidejs-next' href='#'>Next!</a></div>")
-$("h2").guidejs({html:my_html});
+<script>
+	var my_html = $("<div>Awesome stuff in a box! <a class='guidejs-next' href='#'>Next!</a></div>")
+	$("h2").guidejs({html:my_html});
+</script>
 ```
 
 `my_html` will now appear next to the focused `<h2>` element. Notice the `guidejs-next` class on the link inside the provided html - guidejs will recognize it and move on to the next element in the queue by clicking on it. Sweet!
