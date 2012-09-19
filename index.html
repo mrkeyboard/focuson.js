@@ -1,0 +1,150 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Guidejs by mrkeyboard</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Guidejs</h1>
+        <p></p>
+
+        <p class="view"><a href="https://github.com/mrkeyboard/guidejs">View the Project on GitHub <small>mrkeyboard/guidejs</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/mrkeyboard/guidejs/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/mrkeyboard/guidejs/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/mrkeyboard/guidejs">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>guide.js</h1>
+
+<p>A jQuery library for creating UI tutorials.</p>
+
+<h2>What's it good for?</h2>
+
+<p>If you feel like your UI is just too awesome for users to handle at first glance, how about a good ol' fashioned, step-by-step UI tutorial? guide.js casually fades out the whole screen except a single element you provide.</p>
+
+<h2>Usage</h2>
+
+<p>Include guide.js by adding it to your html right after jquery:</p>
+
+<div class="highlight"><pre><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"js/libs/guidejs/guide.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+</pre></div>
+
+<p>Now all you have to do is give guide.js an element through jQuery's selector selector:</p>
+
+<div class="highlight"><pre><span class="nx">$</span><span class="p">(</span><span class="s2">"#awesome_ui_element"</span><span class="p">).</span><span class="nx">guidejs</span><span class="p">();</span>
+</pre></div>
+
+<p>The whole screen should now black out, leaving only the given element in focus. Awesome! </p>
+
+<p>If you add a few elements at once, they will be added to the <em>queue</em>. For example:</p>
+
+<div class="highlight"><pre><span class="nx">$</span><span class="p">(</span><span class="s2">"h2"</span><span class="p">).</span><span class="nx">guidejs</span><span class="p">();</span>
+</pre></div>
+
+<p>but hey - guidejs will only focused on the first item. So how do we cycle through them? You can declare a timer using the <em>element configuration object</em> like so:</p>
+
+<div class="highlight"><pre><span class="nx">$</span><span class="p">(</span><span class="s2">"h2"</span><span class="p">).</span><span class="nx">guidejs</span><span class="p">({</span><span class="nx">timer</span><span class="o">:</span><span class="mi">2500</span><span class="p">});</span>
+</pre></div>
+
+<p>provided with this code, guide.js will go through each h2 title every 2.5 seconds and eventually fade out (because the last h2 element in queue also has a timer, and nothing coems after). Please read below for more information about guide-js parameters.</p>
+
+<p>If a timer wasn't set, guidejs is waiting for an action to tell it to move on to the next element. This can be done manually with the <code>guidejs.play()</code> function, or alternatively, you could have a link in the tutorial-text, with a <code>guidejs-next</code> class. </p>
+
+<p><strong>Recommended:</strong> You can add HTML right next to the focused item easily! Here's how:</p>
+
+<div class="highlight"><pre><span class="nt">&lt;h2&gt;</span>Hello! Focus on me first.<span class="nt">&lt;/h2&gt;</span>
+<span class="nt">&lt;h2&gt;</span>Me right after!<span class="nt">&lt;/h2&gt;</span>
+<span class="nt">&lt;script&gt;</span>
+    <span class="kd">var</span> <span class="nx">my_html</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">"&lt;div&gt;Awesome stuff in a box! &lt;a class='guidejs-next' href='#'&gt;Next!&lt;/a&gt;&lt;/div&gt;"</span><span class="p">)</span>
+    <span class="nx">$</span><span class="p">(</span><span class="s2">"h2"</span><span class="p">).</span><span class="nx">guidejs</span><span class="p">({</span><span class="nx">html</span><span class="o">:</span><span class="nx">my_html</span><span class="p">});</span>
+<span class="nt">&lt;/script&gt;</span>
+</pre></div>
+
+<p><code>my_html</code> will now appear next to the focused <code>&lt;h2&gt;</code> element. Notice the <code>guidejs-next</code> class on the link inside the provided html - guidejs will recognize it and move on to the next element in the queue by clicking on it. Sweet!</p>
+
+<h2>Parameters</h2>
+
+<p>Here's a list of all possible parameters each element can take, as well as global parameters.</p>
+
+<h3>Element</h3>
+
+<p>Per-element parameters, provided through the first param when initated on an element, as in <code>$('h2').({params:'go here'})</code></p>
+
+<ul>
+<li>
+<code>timer: 0</code> - in ms, amount of time between each element in queue. Does not autoplay if 0.</li>
+<li>
+<code>padding: 0</code> - in px, amount of padding around the item</li>
+<li>
+<code>corner: 5</code> - in px, amount of pixels for rounded corners around the element. Not supported in IE and Opera.</li>
+<li>
+<code>transition: 500</code> - in ms, amount of time it takes for the animation to go from the previous element to this one</li>
+<li>
+<code>prevent_scroll: false</code> - true or false, whether to prevent the page from scrolling or not</li>
+<li>
+<code>auto_scroll: true</code> - true or false, whether to scroll to the newly focused element if it's out of the user's screen.</li>
+<li>
+<code>html: false</code> - If not false, expects an html string or a jquery object. Appends it next to the focused element. Good for extra information about the focused object. </li>
+<li>
+<code>position: 'left'</code> - If there's an html to append, position is where to place it. Accepts <code>left</code>, <code>right</code>, <code>top</code> and <code>bottom</code>. Relative to the focused element.</li>
+</ul><h3>Global parameters</h3>
+
+<ul>
+<li>
+<code>shade_color: '#0'</code> - color of the shade</li>
+<li>
+<code>shade_opacity: 0.7</code> - 0.0-1.0, opacity of the shade</li>
+<li>
+<code>el_default: {}</code> - default empty, allows you to change the above element defaults. For example, if you know you want a 5 secodns timer between each all elements, you can just set it here instead of in each of them. Usage:</li>
+</ul><div class="highlight"><pre><span class="nx">guidejs</span><span class="p">.</span><span class="nx">config</span> <span class="o">=</span> <span class="p">{</span><span class="nx">el_default</span><span class="o">:</span><span class="p">{</span><span class="nx">timer</span><span class="o">:</span><span class="mi">5000</span><span class="p">},</span> <span class="nx">shade_opacity</span><span class="o">:</span> <span class="mf">0.3</span><span class="p">}</span> <span class="c1">// Note 'el_default' is an object. Don't confuse and put 'timer' up in config directly, it won't work!</span>
+</pre></div>
+
+<h2>Global functions</h2>
+
+<ul>
+<li>
+<code>$('.el').guidejs({params:'go here'})</code> - Adds the given elements to the queue, sets the options given to all of them.</li>
+</ul><p>TODO window.guidejs.conf </p>
+
+<ul>
+<li>guidejs.hide - Force guide.js to fade out. Stops the currently playing timers if such exist</li>
+<li>guidejs.show(play = false) - Force guide.js to fade in, accepts a play parameter which resumes the timers back if set to true and such exist.</li>
+<li>guidejs.add_to_queue(element, options) - Directly add an element to the queue. It's recommended to use jquery's sweet selector though <code>$('.el').guidejs()</code> and not directly use this function. </li>
+</ul><h2>HTML tips</h2>
+
+<p>WIP 
+.guidejs-next
+.guidejs-hide
+...</p>
+
+<h2>Credits</h2>
+
+<ul>
+<li>guide.js by Ido Tal</li>
+<li>jquery by john resig - guidejs's only dependency </li>
+<li>The example site in the repo was built with initializr by Jonathan Verrecchia. Credit also goes to HTML5 Boilerplate by Paul Irish, Divya Manian. Bootstrap by Mark Otto and <a href="https://github.com/fat" class="user-mention">@fat</a>. </li>
+</ul>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/mrkeyboard">mrkeyboard</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
