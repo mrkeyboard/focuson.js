@@ -74,19 +74,17 @@ Per-element parameters, provided through the first param when initated on an ele
 * `el_default: {}` - default empty, allows you to change the above element defaults. For example, if you know you want a 5 secodns timer between each all elements, you can just set it here instead of in each of them. Usage:
 
 ```javascript
-guidejs.config = {el_default:{timer:5000}, shade_opacity: 0.3} // Note 'el_default' is an object. Don't confuse and put 'timer' up in config directly, it won't work!
+guidejs.config = {el_default:{timer:5000}, shade_opacity: 0.3} 	// Note: 'el_default' is an object 
 ```
 
 
 ## Global functions
 
 * `$('.el').guidejs({params:'go here'})` - Adds the given elements to the queue, sets the options given to all of them.
-
-TODO window.guidejs.conf 
-
-* guidejs.hide - Force guide.js to fade out. Stops the currently playing timers if such exist
-* guidejs.show(play = false) - Force guide.js to fade in, accepts a play parameter which resumes the timers back if set to true and such exist.
-* guidejs.add_to_queue(element, options) - Directly add an element to the queue. It's recommended to use jquery's sweet selector though `$('.el').guidejs()` and not directly use this function. 
+* TODO window.guidejs.conf 
+* `guidejs.hide()` - Force guide.js to fade out. Stops the currently playing timers if such exist
+* `guidejs.show(play = false)` - Force guide.js to fade in, accepts a `play` parameter which resumes the timers back if set to true.
+* `guidejs.add_to_queue(element, options)` - Directly add an element to the queue. It's recommended to use jquery's sweet selector though `$('.el').guidejs()` and not directly use this function. 
 
 
 ## HTML tips
@@ -96,7 +94,6 @@ WIP
 ...
 
 
-## Credits
-* guide.js by Ido Tal
-* jquery by john resig - guidejs's only dependency 
-* The example site in the repo was built with initializr by Jonathan Verrecchia. Credit also goes to HTML5 Boilerplate by Paul Irish, Divya Manian. Bootstrap by Mark Otto and @fat. 
+## Thank yous:
+* jQuery
+* Bootstrap, HTML5 Boilerplate, Initializr

@@ -36,7 +36,7 @@
       border-radius: 10px;
       border: 3px solid rgba(0,0,0,.1);;
     }
-    .guidejs-hide {
+    .focuson-hide {
       margin-left: 150px;
     }
   </style>
@@ -107,13 +107,12 @@
 <script src="js/libs/guidejs/guide.js"></script>
 <script>
 
-  var tutorial = "<div class='tutorial-sample'><p>Hello world! This is a sample text. The button here is a simple bootstrap button with the class 'guidejs-next' attached to it, so hitting that button within this html block will trigger the next element in the queue. </p><a class='btn btn-success guidejs-next'>Next step please!</a><a class='btn guidejs-hide'>Gtfo</a></div>"
+  var tutorial = "<div class='tutorial-sample'><p>Hello world! This custom HTML is applied to the element configuration. The class <code>'focuson-next'</code> is attached to the button so it plays the next on queue right after! </p><a class='btn btn-success focuson-next'>Next step please!</a><a class='btn focuson-hide'>Gtfo</a></div>"
 
-  $("h1").guidejs({padding: 20, html:tutorial, position:'bottom'});
-  $("h2").guidejs({padding: 0, timer:2500});
+  $("h1").focusOn({padding: 20, html: tutorial, position: 'bottom'}); // Will wait for a play() or a 
+  $("h2").focusOn({padding: 0, timer: 2500});
   
-  //$("#logo").guidejs({padding: 20, timer:2000});
-  //$("h3").guidejs {padding: 5, html:'blah <a href="#" class="guidejs-next">nigga</a>'}
+  
 </script>
 
 

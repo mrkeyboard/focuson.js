@@ -1,51 +1,37 @@
-###
-# # # # # # # # # # # # # # # # # # # # #
-	guidejs - a javscript UI tutorial
-# # # # # # # # # # # # # # # # # # # # #
+# --------------------------------------
+#  focuson.js - a javscript highlighter
+# --------------------------------------
 
-Code by Ido Tal
-...
-### 
 (($) ->
-	# Sup
-	class guidejs
-
-		# Private fns
+	class focuson
+		# The constructor initiates focuson on the page. Accepts an
+		# optional configuration object, see @defaults
 		constructor: (options = {}) ->
-			# Append necessary html/css
+			# Append focuson html/css
 			$('head').append @css
 			$('body').append @$els
 
 			# In case we were initiated differently
-			window.guidejs = @ if not window.guidejs
+			window.focuson = @ if not window.focuson
 
-			# Extend defaults
-			@conf = $.extend {}, @defaults, options
+			# Apply configuration
+			@conf = $.extend @defaults, options
+			@conf.on_complete ||= @hide
 
-			# Easy access to elements
-			@$shades = $ '#guidejs-top, #guidejs-left, #guidejs-right, #guidejs-bottom, #guidejs-focus'
-			# ...
-			@focus = $ '#guidejs-focus'
-			@border = $ '#guidejs-focus .guidejs-border'
-			@top 	 = $ '#guidejs-top'
-			@bottom  = $ '#guidejs-bottom'
-			@right 	 = $ '#guidejs-right'
-			@left 	 = $ '#guidejs-left'
-			@html 	 = $ '#guidejs-html'
+			# Quick access to all elements
+			@$shades = $ '#focuson-top, #focuson-left, #focuson-right, #focuson-bottom, #focuson-focus'
+			# And specific elements
+			@focus  = $ '#focuson-focus'
+			@border = $ '#focuson-focus .focuson-border'
+			@top    = $ '#focuson-top'
+			@bottom = $ '#focuson-bottom'
+			@right 	= $ '#focuson-right'
+			@left 	= $ '#focuson-left'
+			@html 	= $ '#focuson-html'
 
-
-			@$shades.not(@focus).css {'background-color': 'rgba(' + @conf.shade_color + ', ' + @conf.shade_opacity + ')'}
-			@border.css {'box-shadow': '0px 0px 0px 15px rgba(' + @conf.shade_color + ', ' + @conf.shade_opacity + ')'}
-			
-			@nothing_to_play = @hide
-			
-			# ... 
-
-		remove: ->
-			#...
-			# stop
-			# remove els
-			# remove guidejs
+			# Apply element colors
+			@$shades.not(@focus).css 'background-color': 'rgba(' + @conf.shade_color + ', ' + @conf.shade_opacity + ')'
+			@border.css 'box-shadow': '0px 0px 0px 15px rgba(' + @conf.shade_color + ', ' + @conf.shade_opacity + ')'
 
 		set_target: (el, animate = 0) ->
 			@target.el = (el = $ el)
@@ -53,7 +39,7 @@ Code by Ido Tal
 					top: el.offset().top
 					left: el.offset().left
 					h: el.outerHeight()
-					w: el.outerWidth() 
+					w: el.outerWidth()
 				,
 					queue: false
 					duration: @transition
@@ -76,8 +62,6 @@ Code by Ido Tal
 				left   	: 0 #...
 				width  	: $(window).width()
 				height 	: $(window).height()
-
-			#console.log 'rendering', target, camera, @target.top
 			
 			# Top and bottom
 			dy  	= target.top - camera.top
@@ -89,8 +73,8 @@ Code by Ido Tal
 				top    	: mid + top.height
 				height 	: camera.height - (mid)
 
-			@top.css 		top
-			@bottom.css 	bottom
+			@top.css 	top
+			@bottom.css bottom
 			
 			# Middle (left, right, and middle)
 			dx    	= target.left - camera.left
@@ -110,41 +94,41 @@ Code by Ido Tal
 				height : mid
 				width  : camera.width - (left.width + content.width)
 
-			@left.css 		left
+			@left.css 	left
 			@focus.css 	content
-			@right.css 		right
+			@right.css 	right
 		
-
 		play_next: () ->
-			#return console.log("play_next when not playing") if not @playing
-			# Get the next one to play
-			@el_conf = @queue.shift()
-			# Gto if we don't have anything. Execute the nothing fn if it exists
+			# Get the next one to play, unless timer has not reached 0 in which case
+			# we are going to play the same element, which was probably paused
+			@el_conf = @queue.shift() if not @el_conf.timer
+			# Gtfo if we don't have anything. Execute the nothing fn if it exists
 			if not @el_conf
-				@nothing_to_play() if typeof @nothing_to_play is 'function'
-				@stop()
-				return 
+				@el_conf = {} # No current object 
+				@conf.on_complete?()
+				return @stop()
 			
 			# Add HTML or re
 			@remove_html()
 			@set_html(@el_conf.html, @el_conf.position) if @el_conf.html
 			# Events
-			@html.on 'click', '.guidejs-next', => @play_next.apply @
-			@html.on 'click', '.guidejs-hide', => @hide.apply @
+			@html.on 'click', '.focuson-next', => @play_next.apply @
+			@html.on 'click', '.focuson-hide', => @hide.apply @
 
 			# Execute the next target
-			setTimeout ()=> 
-				@set_target @el_conf.el
-			, 10
+			setTimeout (()=> @set_target @el_conf.el), 10
+			
 			# Page scroll
 			$('body').css('overflow', if @el_conf.prevent_scroll then 'hidden' else 'auto')
 			
+			# Update border radius
 			@border.css {'border-radius': @el_conf.corner+'px'}
 
-			# The autoplay timer if the object's got some
+			# Start the autoplay timer if the object's got some
 			if @el_conf.timer			
 				@timer = setTimeout =>
-					do @play_next
+					@el_conf.timer = 0 	# Mark timer as complete
+					do @play_next 		# Play next element
 				, @el_conf.timer
 			
 			return @
@@ -158,11 +142,11 @@ Code by Ido Tal
 			# Get all z-indexes back to 999999,
 			@$shades.css('z-index', 999999)
 			# Now append the html to the right side, 
-			@html.appendTo('#guidejs-' + direction)
+			@html.appendTo('#focuson-' + direction)
 				.parent().css('z-index', 1999999) # and raise its z-index
 
-			# Reset:
-			@html.css(top:'auto',bottom:'auto',left:'auto',right:'auto', width: 'auto')
+			# Reset
+			@html.css(top:'auto', bottom:'auto', left:'auto', right:'auto', width: 'auto')
 			# Positioning for the html wrapper
 			wrapper_css = {}
 			wrapper_css[@opposite(direction)] = '0px' 
@@ -171,18 +155,22 @@ Code by Ido Tal
 				wrapper_css['width'] = '100%'
 			else 
 				wrapper_css['text-align'] = @opposite direction
-				# ... not perfect, more work to be done here
+				# ... more work to be done here
 			
 			@html.css wrapper_css
 
 			# Attach the html
-			$('#guidejs-html-inner', @html).html(content)
+			$('#focuson-html-inner', @html).html(content)
 
 		remove_html: (time = 100) ->
-			$old_html = $ $('#guidejs-html-inner', @html).children()
+			$old_html = $ $('#focuson-html-inner', @html).children()
 			$old_html.fadeTo time, 0, -> do $(@).remove
 
-		# Public fns
+		destroy: ->
+			@stop() # Stop any ongoing action
+			@$shades.remove() # Remove all elements
+			delete @
+
 
 		# Add an element to the queue
 		add_to_queue: (element, options) ->
@@ -190,115 +178,119 @@ Code by Ido Tal
 			# Push element object to the queue
 			options = @default_el_options if not options
 			@queue.push($.extend {}, @el_defaults, options, {el: $ element})
-			# Start playing unless we have an option saying otherwise
+			# Start playing
 			do @play if not @playing
 		
+		# Fade everything in
 		show: (play = no) ->
 			@$shades.clearQueue()
 				.show(0)
 				.fadeTo @conf.fade_time, 1
-
-			# play?
 			return @
 
-		hide: ->
-			# Fadeout
+		# Fade everything out
+		hide: =>
 			@$shades.clearQueue()
 				.fadeTo @conf.fade_time, 0, -> $(@).hide(0)
-			# Stop any ongoing shits
+			# Stop anything ongoing
 			do @stop
 
+		# Start the show
 		play: ->
-			# If not already playing, and if there's anything to play
-			return if @playing or not @queue.length
+			# If not already playing, and if nothing is currently playing (paused)
+			return if @playing 
 			# Set events
-			$(window).on 'resize scroll', => @render.apply @
+			$(window).on 'resize scroll', @render_this = (=> @render.apply @) # This is kinda terrible
 			# Declare that we are indeed playing, and play the next in the queue!
 			@playing = yes
 			do @play_next
 			
 			return @
 
+		# Stop the show
 		stop: ->
-			# If we are playing
 			return if not @playing
+
+			clearInterval(@timer) # Stop current timer
+
 			# Remove events
-			$(window).off 'resize scroll' # TODO this might collide with existing page events!!
-			# Declare that we aren't playing no more 
+			$(window).off 'resize scroll', @render_this
+			# We aren't playing no more 
 			@playing = no
 			
 			return @
 
-		# Vars 
-		playing: no
-		queue: []
-		timer: no # current timer reference
-		target: 
+		# Variables 
+		playing: no # Current state
+		queue  : [] # Array of objects in line to play next
+		timer  : 0  # Current interval id, if any
+		target : 
 			top  : 	0
 			left : 	0
 			h    :  $(window).height()
 			w    :  $(window).width()
 			el   :  window
-		nothing_to_play: false #fn
 		
-		# Global defaults
-		conf: {} # Current
+		# Global configuration defaults
+		conf: {} # Current configuration
 		defaults: 
-			fade_time		: 250  	    # In ms, time to fade in/out
+			fade_time		: 250       # In ms, time to fade in/out
 			shade_opacity   : '0.5'     # Opacity of the background
 			shade_color     : '0, 0, 0' # Color of the background
+			on_complete     : false  	# Function to call when next() is called
+										# and there's nothing to play
 		
 		# Per-element on queue defaults
-		el_conf: {} # Current
+		el_conf: {} # Current element configuration
 		el_defaults:
-			padding			: 5 	# In px, extra spacing from the element
-			corner			: 5 	# In px, round corners 
+			padding			: 5     # In px, extra spacing from the element
+			corner			: 5     # In px, round corners 
 			#auto_play		: no 	# Should it autoplay?
-			timer			: no  # In ms, speed of the autoplay
+			timer			: no    # In ms, speed of the autoplay
 			transition  	: 500   # In ms, speed of transition. 0 for disabled
-			prevent_scroll	: no	# Prevent scroll
+			prevent_scroll	: no    # Prevent scroll
 			html 			: no    # HTML to put next to the focused element
-			position        : 'top'
+			position        : 'top' #
 		
-		$els: $ "	<div id='guidejs-top' class='guidejs-row guidejs-shade'></div>
-					<div id='guidejs-left' class='guidejs-shade'></div>
-					<div id='guidejs-focus'><div class='guidejs-border'></div></div>
-					<div id='guidejs-right' class='guidejs-shade'></div>
-					<div id='guidejs-bottom' class='guidejs-row guidejs-shade'></div>
-					<div id='guidejs-html'><div id='guidejs-html-inner'>content</div></div>"
+		$els: $ "	<div id='focuson-top' class='focuson-row focuson-shade'></div>
+					<div id='focuson-left' class='focuson-shade'></div>
+					<div id='focuson-focus'><div class='focuson-border'></div></div>
+					<div id='focuson-right' class='focuson-shade'></div>
+					<div id='focuson-bottom' class='focuson-row focuson-shade'></div>
+					<div id='focuson-html'><div id='focuson-html-inner'>content</div></div>"
 		css: "<style>
-				#guidejs-top,
-				#guidejs-left,
-				#guidejs-focus,
-				#guidejs-right,
-				#guidejs-bottom {
+				#focuson-top,
+				#focuson-left,
+				#focuson-focus,
+				#focuson-right,
+				#focuson-bottom {
 					position: fixed;
 					top: 0px;
 					display: block;
 					z-index: 999999;
 				}
-				#guidejs-html {
+				#focuson-html {
 					position: absolute;
 					z-index: 1000000;
 					width: 100%;
 				}
-				#guidejs-html-inner {
+				#focuson-html-inner {
 					display: inline-block; /* so we can center it */
 					text-align:left;
 				}
-				.guidejs-row {
+				.focuson-row {
 					width:100%;
 				}
-				.guidejs-shade
+				.focuson-shade
 				{
 					background: rgba(0, 0, 0, .7); /* todo: support non-rgba */
 				}
 				/* inside border trick. this is removed for ie/opera */
-				#guidejs-focus {
+				#focuson-focus {
 					pointer-events: none; /* So that content inside has mouse events */
 					overflow:hidden;
 				}
-				#guidejs-focus .guidejs-border {
+				#focuson-focus .focuson-border {
 					display: block;
 					height: 100%;
 					width: 100%;
@@ -307,19 +299,13 @@ Code by Ido Tal
 				}
 			</style>"
 
-	# JQuery function
-	$.fn.guidejs = (options)->
-		# Add element to the queue
+	# JQuery implementation
+	$.fn.focusOn = (options)->
+		# Add each element to the queue
 		return @each ->
-			#console.log "adding", @
-			if not window.guidejs
-				# Initiate a new class if we don't have one
-				window.guidejs = new guidejs(@, {}).add_to_queue @, options
+			if window.focuson
+				window.focuson.add_to_queue @, options
 			else 
-				window.guidejs.add_to_queue @, options
-			#if not $(@).data('accent') # init, param = options
-			#	$(@).data('accent', new Accent(@, param)) 
-			#else if typeof param is 'string' # function, param = function string
-			#	$(@).data('accent')[param]()
-			#@.data
+				# Initiate a new class if we don't have one
+				window.focuson = new focuson(@, {}).add_to_queue @, options
 )(jQuery)
