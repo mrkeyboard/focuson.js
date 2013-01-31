@@ -99,8 +99,6 @@
 			@right.css 	right
 		
 		play_next: () ->
-			console.log @queue
-			console.log elapsedTime if elapsedTime?
 			# Get the next one to play, unless timer has not reached 0 in which case
 			# we are going to play the same element, which was probably paused
 			@el_conf = @queue.shift() if not @el_conf.timer
@@ -186,7 +184,6 @@
 
 		# Add an element to the queue
 		add_to_queue: (element, options) ->
-			console.log element
 			return if not element
 			# Push element object to the queue
 			options = @default_el_options if not options
