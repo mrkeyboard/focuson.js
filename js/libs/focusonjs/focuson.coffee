@@ -116,7 +116,7 @@
 			@html.on 'click', '.focuson-hide', => @hide.apply @
 			
 			# Store the time that we started the setTimeout
-			@startOfTimeout = new Date()
+			@start_of_timeout = new Date()
 			
 			# Page scroll
 			$('body').css('overflow', if @el_conf.prevent_scroll then 'hidden' else 'auto')
@@ -222,7 +222,7 @@
 			return if not @playing
 			
 			# store the amount of time left in the previous interval
-			@elapsed_time = new Date() - @startOfTimeout # storing the amount of time the previous timer has ran. 
+			@elapsed_time = new Date() - @start_of_timeout # storing the amount of time the previous timer has ran. 
 
 			
 			# now actually stop the interval
