@@ -99,7 +99,7 @@
         return this.right.css(right);
       };
       focuson.prototype.play_next = function() {
-        var timeLeft, timeToRunTimer, _base;
+        var time_left, time_to_run_timer, _base;
         if (!this.el_conf.timer) {
           this.el_conf = this.queue.shift();
         }
@@ -120,7 +120,7 @@
         this.html.on('click', '.focuson-hide', __bind(function() {
           return this.hide.apply(this);
         }, this));
-        window.startOfTimeout = new Date();
+        this.startOfTimeout = new Date();
         $('body').css('overflow', this.el_conf.prevent_scroll ? 'hidden' : 'auto');
         this.border.css({
           'border-radius': this.el_conf.corner + 'px'
@@ -128,18 +128,18 @@
         setTimeout((__bind(function() {
           return this.set_target(this.el_conf.el);
         }, this)), 1);
-        if (window.elapsedTime != null) {
-          timeLeft = this.el_conf.timer - window.elapsedTime;
-          window.elapsedTime = null;
-          timeToRunTimer = timeLeft;
+        if (this.elapsed_time != null) {
+          time_left = this.el_conf.timer - this.elapsed_time;
+          this.elapsed_time = null;
+          time_to_run_timer = time_left;
         } else {
-          timeToRunTimer = this.el_conf.timer;
+          time_to_run_timer = this.el_conf.timer;
         }
         if (this.el_conf.timer) {
           this.timer = setTimeout(__bind(function() {
             this.el_conf.timer = 0;
             return this.play_next();
-          }, this), timeToRunTimer);
+          }, this), time_to_run_timer);
         }
         return this;
       };
@@ -235,7 +235,7 @@
         if (!this.playing) {
           return;
         }
-        window.elapsedTime = new Date() - window.startOfTimeout;
+        this.elapsed_time = new Date() - this.startOfTimeout;
         clearInterval(this.timer);
         $(window).off('resize scroll', this.render_this);
         this.playing = false;
