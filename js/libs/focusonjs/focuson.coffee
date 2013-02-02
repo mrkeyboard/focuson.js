@@ -101,7 +101,7 @@
 		play_next: () ->
 			# Get the next one to play, unless timer has not reached 0 in which case
 			# we are going to play the same element, which was probably paused
-			@el_conf = @queue.shift() if not @el_conf.timer
+			@el_conf = @queue.shift() if not @timer #@el_conf.timer
 			# Gtfo if we don't have anything. Execute the nothing fn if it exists
 			if not @el_conf
 				@el_conf = {} # No current object 
@@ -115,9 +115,6 @@
 			@html.on 'click', '.focuson-next', => @play_next.apply @
 			@html.on 'click', '.focuson-hide', => @hide.apply @
 			
-			# Store the time that we started the setTimeout
-			@start_of_timeout = new Date()
-			
 			# Page scroll
 			$('body').css('overflow', if @el_conf.prevent_scroll then 'hidden' else 'auto')
 			
@@ -127,19 +124,20 @@
 			# Execute the next target
 			setTimeout (()=> @set_target @el_conf.el), 1
 			
-			# this is checking if we were just paused or not. If @elapsed_time? then it was just paused. If not, then run it as normal
-			if @elapsed_time?
-				time_left = @el_conf.timer - @elapsed_time 
-				@elapsed_time = null # so that it will continue with the @el_conf.timer time next play_next() call
-				time_to_run_timer = time_left
-			else		
-				time_to_run_timer = @el_conf.timer # run it as the normal config
-				
-			if @el_conf.timer			
+			# Store the exact time we started the timer, used to 
+			# find the delta if later paused 
+			@start_of_timeout = new Date()
+			
+			# Run timer
+			if @el_conf.timer
 				@timer = setTimeout =>
-					@el_conf.timer = 0 	# Mark timer as complete
-					do @play_next 		# Play next element
-				, time_to_run_timer
+					@elapsed_time = 0 # Reset elapsed time
+					@timer = 0 		  # Reset @timer id
+					@play_next() 	  # Play next element
+				# How long should we run? The element config timer minus the 
+				# elapsed time, if any. Elaprsed_time is set through @stop
+				# and calculates the amount of time that was already played
+				, @el_conf.timer - @elapsed_time 
 				
 			return @
 
@@ -220,13 +218,12 @@
 		# Stop the show
 		stop: ->
 			return if not @playing
-			
-			# store the amount of time left in the previous interval
-			@elapsed_time = new Date() - @start_of_timeout # storing the amount of time the previous timer has ran. 
-
-			
-			# now actually stop the interval
-			clearInterval(@timer) # Stop current timer
+				
+			# Store the time between the start of the timer and now.
+			# Continue when it's later played again. Use clearInterval 
+			# to pause the ongoing timer. 
+			@elapsed_time = new Date() - @start_of_timeout 
+			clearInterval @timer 
 
 			# Remove events
 			$(window).off 'resize scroll', @render_this
@@ -245,6 +242,11 @@
 			h    :  $(window).height()
 			w    :  $(window).width()
 			el   :  window
+
+		elapsed_time: 0 		# Set through @stop, it counts the delta between when
+								# timer started playing (@start_of_timeout) and the
+								# just-stopped playing time
+		start_of_timeout: 0 	# Time we started the timer
 		
 		# Global configuration defaults
 		conf: {} # Current configuration
