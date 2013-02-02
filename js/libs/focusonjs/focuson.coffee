@@ -114,23 +114,33 @@
 			# Events
 			@html.on 'click', '.focuson-next', => @play_next.apply @
 			@html.on 'click', '.focuson-hide', => @hide.apply @
-
-			# Execute the next target
-			setTimeout (()=> @set_target @el_conf.el), 10
+			
+			# Store the time that we started the setTimeout
+			@start_of_timeout = new Date()
 			
 			# Page scroll
 			$('body').css('overflow', if @el_conf.prevent_scroll then 'hidden' else 'auto')
 			
 			# Update border radius
 			@border.css {'border-radius': @el_conf.corner+'px'}
-
-			# Start the autoplay timer if the object's got some
+			
+			# Execute the next target
+			setTimeout (()=> @set_target @el_conf.el), 1
+			
+			# this is checking if we were just paused or not. If @elapsed_time? then it was just paused. If not, then run it as normal
+			if @elapsed_time?
+				time_left = @el_conf.timer - @elapsed_time 
+				@elapsed_time = null # so that it will continue with the @el_conf.timer time next play_next() call
+				time_to_run_timer = time_left
+			else		
+				time_to_run_timer = @el_conf.timer # run it as the normal config
+				
 			if @el_conf.timer			
 				@timer = setTimeout =>
 					@el_conf.timer = 0 	# Mark timer as complete
 					do @play_next 		# Play next element
-				, @el_conf.timer
-			
+				, time_to_run_timer
+				
 			return @
 
 		opposite: (direction) ->
@@ -210,7 +220,12 @@
 		# Stop the show
 		stop: ->
 			return if not @playing
+			
+			# store the amount of time left in the previous interval
+			@elapsed_time = new Date() - @start_of_timeout # storing the amount of time the previous timer has ran. 
 
+			
+			# now actually stop the interval
 			clearInterval(@timer) # Stop current timer
 
 			# Remove events
